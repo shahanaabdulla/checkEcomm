@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link href="cropper/cropper.css" rel="stylesheet">
+    <!-- Normalize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <!-- Cropper CSS -->
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css'>
+    <style>
+        .page {
+            margin: 1em auto;
+            max-width: 768px;
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: 100%;
+        }
+
+        .box {
+            padding: 0.5em;
+            width: 100%;
+            margin: 0.5em;
+        }
+
+        .box-2 {
+            padding: 0.5em;
+            width: calc(100% / 2 - 1em);
+        }
+
+        .options label,
+        .options input {
+            width: 4em;
+            padding: 0.5em 1em;
+        }
+
+        .btn {
+            background: white;
+            color: black;
+            border: 1px solid black;
+            padding: 0.5em 1em;
+            text-decoration: none;
+            margin: 0.8em 0.3em;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row">
+        <div class="container col-md-3">
+            <h1 class="mb-4">Add Product</h1>
+
+            <!-- Form for adding a product -->
+            <form id="product-form" action="/admin/product" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Product Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="description" name="description" required></textarea>
+                </div>
+                 <div class="mb-3">
+                    <label for="description" class="form-label">Color:</label>
+                    <input class="form-control" id="color" name="color" required></input>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select name="category" id="category" class="form-control">
+                        {{#each categories}}
+                        <option value="{{_id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="size" class="form-label">Size:</label>
+                    <input type="text" class="form-control" id="size" name="size">
+                </div>
+                <input type="hidden" id="cropped-image" name="croppedImage">
+
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Price:</label>
+                    <input type="number" class="form-control" id="price" name="price" value="0" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="stock" class="form-label">Stock:</label>
+                    <input type="number" class="form-control" id="stock" name="stock" value="0" required>
+                </div>
+
+                <main class="page">
+                    <!-- input file -->
+                    <div class="box">
+                        <input type="file" id="file-input" name="image">
+                    </div>
+                    <!-- leftbox -->
+                    <div class="box-2">
+                        <div class="result"></div>
+                    </div>
+                    <!--rightbox-->
+                    <div class="box-2 img-result hide">
+                        <!-- result of crop -->
+                        <img class="cropped" src="" alt="">
+                    </div>
+                    <!-- input file -->
+                    <div class="box">
+                        <div class="options hide">
+                            <label> Width</label>
+                            <input type="number" class="img-w" value="300" min="100" max="1200" />
+                        </div>
+                        <!-- save btn -->
+                        <button class="btn save hide">Save</button>
+                        <button class="btn update hide">Update</button>
+                    </div>
+                </main>
+
+                <div class="mb-3">
+                    <label for="images" class="form-label">Additional Images:</label>
+                    <input type="file" class="form-control" id="images" name="images" multiple>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="active" name="active" value="true">
+                    <label class="form-check-label" for="active">Active </label>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isFeatured" name="isFeatured" value="true">
+                    <label class="form-check-label" for="isFeatured">isFeatured </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js'></script>
+    <script>
+    // Variables
+    let result = document.querySelector('.result');
+    let save = document.querySelector('.save');
+    let updateBtn = document.querySelector('.update');
+    let cropper;
+
+    // Handle image selection event
+    document.getElementById('file-input').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const img = new Image();
+            img.src = event.target.result;
+
+            // Clear previous image
+            result.innerHTML = '';
+
+            // Append the image to the result div
+            result.appendChild(img);
+
+            // Initialize Cropper
+            cropper = new Cropper(img, {
+                aspectRatio: 1, // Aspect ratio for cropping
+                viewMode: 1 // Set to 1 for restrict mode, 0 for unrestricted
+            });
+
+            // Show save button and cropping options
+            save.classList.remove('hide');
+            document.querySelector('.options').classList.remove('hide');
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    // Handle save button click
+    save.addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent form submission
+    
+    // Get cropped image data
+    const canvas = cropper.getCroppedCanvas({
+        width: parseInt(document.querySelector('.img-w').value) || 300 // Width of the cropped image
+    });
+
+    // Clear previous cropped image
+    document.querySelector('.cropped').remove();
+
+    // Create new cropped image element and append it
+    const croppedImg = document.createElement('img');
+    croppedImg.classList.add('cropped');
+    croppedImg.src = canvas.toDataURL();
+    result.appendChild(croppedImg);
+
+    // Show update button
+    updateBtn.classList.remove('hide');
+
+    // Set the value of the hidden input field to the cropped image data URL
+    document.getElementById('cropped-image').value = croppedImg.src;
+     const formData = new FormData(document.getElementById('product-form'));
+    formData.append('image', document.getElementById('cropped-image').value);
+
+    fetch('/admin/product', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        // Check if response is successful
+        if (response.ok) {
+            // Redirect or show success message
+            window.location.reload();
+; // Redirect to success page
+            // Or show success message
+            alert('image cropped successfully');
+        } else {
+            // Handle error
+            throw new Error('Failed to add product');
+        }
+    })
+    .catch(error => {
+        // Handle error
+        console.error('Error:', error);
+        alert('An error occurred while adding the product');
+    });
+});
+
+
+    // Handle update button click
+   
+</script>
+
+</body>
+
+</html>

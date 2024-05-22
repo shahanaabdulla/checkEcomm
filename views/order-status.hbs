@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .status-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 800px;
+            margin: auto;
+        }
+        .status {
+            text-align: center;
+            margin: 0 10px;
+        }
+        .status-point {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #ccc;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .status-text {
+            margin-top: 5px;
+            color: #666;
+        }
+        .current-status {
+            background-color: #ffc107;
+            color: #000;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .order-details {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .order-details h2 {
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .return-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .return-button {
+            background-color: #ff0000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .return-button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+     <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-success">{{message}}</p>
+    <h1>Order Status</h1>
+
+    <div class="order-details">
+        <h2>Order Details</h2>
+        <p><strong>Order ID:</strong> {{order.orderID}}</p>
+        <p><strong>Status:</strong> {{order.status}}</p>
+        <p><strong>Total Price:</strong> ₹{{order.totalPrice}}</p>
+        <p><strong>Shipping Address:</strong> {{order.shippingAddress}}</p>
+        <p><strong>Payment Method:</strong> {{order.paymentMethod}}</p>
+        <p><strong>Created At:</strong> {{order.createdAt}}</p>
+    </div>
+
+    <div class="status-container">
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Pending</p>
+        </div>
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Confirmed</p>
+        </div>
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Shipped</p>
+        </div>
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Out for Delivery</p>
+        </div>
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Delivered</p>
+        </div>
+        <div class="status">
+            <div class="status-point"></div>
+            <p class="status-text">Cancelled</p>
+        </div>
+    </div>
+
+    <!-- Placeholder for the return button -->
+    <div class="return-button-container" id="returnButtonContainer"></div>
+
+    <script>
+        const currentStatus = "{{order.status}}";
+        const statusElements = document.querySelectorAll('.status');
+
+        statusElements.forEach(element => {
+            const statusText = element.querySelector('.status-text').innerText.trim();
+            if (statusText === currentStatus) {
+                element.querySelector('.status-point').classList.add('current-status');
+            }
+        });
+
+        // Add the return button if the order status is "Delivered"
+        if (currentStatus === "Delivered") {
+        const returnButtonContainer = document.getElementById('returnButtonContainer');
+        const returnButton = document.createElement('button');
+        returnButton.innerText = 'Return Product';
+        returnButton.classList.add('return-button');
+        returnButton.addEventListener('click', () => {
+            window.location.href = `/return-form?orderId={{order.orderID}}`;
+        });
+        returnButtonContainer.appendChild(returnButton);
+    }
+    </script>
+
+</body>
+</html>

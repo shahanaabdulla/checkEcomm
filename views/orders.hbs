@@ -1,0 +1,155 @@
+<!-- orders.hbs -->
+
+
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <style>
+        /* Scoped styles for the orders page */
+        .orders-page {
+            font-family: Arial, sans-serif;
+        }
+
+        .orders-page h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .orders-page ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .orders-page .order-item {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .orders-page .product-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .orders-page .product-box img {
+            width: 60px; /* Adjust as needed */
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .orders-page .product-details {
+            flex-grow: 1;
+        }
+
+        .orders-page p {
+            margin: 5px 0;
+        }
+
+        .cancel-order-btn {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        /* Style for the link */
+        .order-link {
+            text-decoration: none;
+            color: #000; /* Adjust link color */
+        }
+
+        /* Style for the link on hover */
+        .order-link:hover {
+            color: #007bff; /* Adjust hover color */
+        }
+
+        /* Status styles */
+        .order-status {
+            font-weight: bold;
+            color: green; /* Adjust color based on status */
+        }
+
+        /* Coupon styles */
+        .coupon-applied {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<div class="container">
+<body class="orders-page">
+    <h1>Orders</h1>
+    <ul>
+        {{#each orders}}
+            <li class="order-item">
+                <a href="order/order-status/{{this._id}}" class="order-link"> <!-- Add link here -->
+                    <h3>Order #{{this.orderID}}</h3>
+                </a>
+                <p class="order-status">Status: {{this.status}}</p> <!-- Status displayed here -->
+                {{#if this.coupon}}
+                    <p class="coupon-applied">Coupon Applied: {{this.coupon.code}} (Discount: {{this.discountAmount}})</p>
+                {{/if}}
+                <ul class="sublist">
+                    {{#each this.items}}
+                        <li class="sublist-item">
+                            <a href="/product-details?productName={{this.product.name}}&productPrice={{this.product.price}}&orderID={{../_id}}" class="order-link"> <!-- Add link here -->
+                                <div class="product-box">
+                                    <img src="{{this.product.image}}" alt="{{this.product.name}}">
+                                    <div class="product-details">
+                                        <p><strong>Product:</strong> {{this.product.name}}</p>
+                                        <p><strong>Quantity:</strong> {{this.quantity}}</p>
+                                        <p><strong>Price:</strong> {{this.product.price}}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    {{/each}}
+                </ul>
+                {{#if (eq this.status "cancelled")}}
+                    <p>Cancelled</p>
+                {{else}}
+                    <button class="cancel-order-btn" onclick="cancelOrder('{{this._id}}')">Cancel Order</button>
+                {{/if}}
+            </li>
+        {{/each}}
+    </ul>
+   </div>
+    <!-- Add this script tag within the <head> or <body> of your HTML page -->
+    <script>
+        // Function to cancel an order
+        function cancelOrder(orderId) {
+            // Send a POST request to the backend endpoint to cancel the order
+            fetch(`/cancel-order/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirect the user to the orderCancel page with updated status
+                    window.location.href = `/orders?status=cancelled`; // Update status here
+                } else {
+                    throw new Error('Failed to cancel order');
+                }
+            })
+            .catch(error => {
+                console.error('Error cancelling order:', error);
+                alert('Failed to cancel order. Please try again later.');
+            });
+        }
+    </script>
+</body>
+</html>

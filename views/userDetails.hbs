@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        .profile-page-style {
+            body {
+                background-color: #f8f9fa;
+            }
+
+            .container {
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 20px;
+            }
+
+            .address-box {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            h2,
+            h1 {
+                color: #007bff;
+            }
+
+            .breadcrumbs a {
+                text-decoration: none;
+                color: #007bff;
+            }
+
+            .breadcrumbs a:hover {
+                color: black;
+            }
+
+            .fa-solid,
+            .fas {
+                font-weight: 900;
+                font-size: 30px;
+                margin-right: 20px;
+                color: black;
+            }
+
+            .cart-count {
+                background-color: #23800b;
+                color: white;
+                border-radius: 28%;
+                padding: 0px 6px;
+                font-size: 12px;
+                position: relative;
+                top: 0%;
+                left: -18px;
+                bottom: 21px;
+            }
+
+            .fa-solid {
+                transition: border-bottom 0.1s ease;
+            }
+
+            .fa-solid:hover {
+                border-bottom: 2px solid #000;
+                padding-bottom: 3px;
+            }
+
+            .col-md-3 {
+                margin-bottom: 3rem;
+            }
+
+            .card-header {
+                background-color: white;
+                border: none;
+            }
+
+            .card:hover {
+                transform: scale(1.05);
+                transition: transform 0.3s ease;
+            }
+
+            .card-img-top {
+                width: 41%;
+                margin-left: 24%;
+                margin-top: 22px;
+            }
+
+            @media (max-width: 991px) {
+                .navbar-collapse {
+                    margin-bottom: 260px;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .searchBtn {
+                    position: absolute;
+                    left: 70%;
+                }
+
+                .form-control {
+                    width: 70%;
+                }
+            }
+
+            .wallet-section {
+                cursor: pointer;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                text-align: center;
+                background-color: #f8f9fa;
+            }
+
+            .wallet-balance {
+                display: none;
+                text-align: center;
+                margin-top: 10px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+
+<body class="profile-page-style">
+    <section>
+        <div class="container mt-5">
+            {{#if message}}
+            {{#if message.type}}
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                <strong>Success:</strong> {{message.message}}
+            </div>
+            {{else}}
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                <strong>Failed:</strong> {{message.message}}
+            </div>
+            {{/if}}
+            {{/if}}
+            <div class="breadcrumbs">
+                <a href="/">Home</a> >
+                <a href="/profile">Profile</a>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Sidebar with user details -->
+                    <div class="card">
+                        {{#if user.profileImage}}
+                        <img src="/uploads/{{user.profileImage}}" class="card-img-top" style="max-width: 350px;"
+                            alt="User Photo">
+                        {{else}}
+                        <img src="/images/profileImageDummy.jpeg" class="card-img-top" style="max-width: 350px;"
+                            alt="User Photo">
+                        {{/if}}
+                        <h1
+                            style="font-size: calc(1.375rem + 3.5vw);text-align: center;margin-right: 23px;font-family: cursive;">
+                            {{user.name}}</h1>
+                        <div class="card-body">
+                            <h5 class="card-title">Your Profile</h5>
+                            <p class="card-text">Username: {{user.name}}</p>
+                            {{#if user.gmail}}
+                            <p class="card-text">Email: {{user.gmail}}</p>
+                            {{else}}
+                            <p class="card-text">Email: {{user.email}}</p>
+                            {{/if}}
+                            {{#if user.gmail}}
+                            {{else}}
+                            <p class="card-text">Phone: {{user.mobile}}</p>
+                            {{/if}}
+                            <a href="/edit-user/{{user._id}}" class="btn btn-primary">Edit Profile</a>
+                        </div>
+                    </div>
+
+                    <!-- Navigation links -->
+                    <div class="list-group mt-4">
+                        <a href="#" class="list-group-item list-group-item-action">Your Orders</a>
+                        <a href="#address" class="list-group-item list-group-item-action">Saved Addresses</a>
+                        <a href="#notifications" class="list-group-item list-group-item-action">Notifications</a>
+                        {{#if user.gmail}}
+                        {{else}}
+                        <a href="/forgot-password" class="list-group-item list-group-item-action">Reset Password</a>
+                        {{/if}}
+                        <div class="wallet-section" onclick="toggleWalletBalance()">
+                            Wallet
+                        </div>
+                        <div class="wallet-balance" id="wallet-balance">
+                            Balance: ₹{{user.walletBalance}}
+                        </div>
+                        <form action="/logout"><button type="submit" class="btn btn-outline-dark mt-3 mb-3">Logout</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <!-- Main content area -->
+                    <h1 class="mb-4">Current orders</h1>
+
+                    <!-- Your Orders Section -->
+                    <section id="your-orders" class="mb-4">
+                        <div class="container mt-5">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-2">
+
+                                    <!-- List of Orders -->
+                                    {{#if orders}}
+                                    <ul class="list-group">
+
+                                        {{#each orders}}
+                                        <li class="list-group-item mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <h5 style="font-size: 10px; max-width: 60px;">Order #{{this.orderID}}
+                                                </h5>
+                                                <span style="height: 20px !important;"
+                                                    class="badge badge-warning ">{{this.status}}</span>
+                                                <p>Total: ₹{{this.totalPrice}}.00</p>
+                                            </div>
+                                            <p>Date: {{this.createdAt}}</p>
+                                        </li>
+
+
+                                        {{/each}}
+
+                                    </ul>
+                                    {{else}}
+                                    <p style="text-align: center;">no current orders</p>
+                                    {{/if}}
+                                    <!-- View More Link -->
+                                    <div class="text-center mt-3">
+                                        <a href="/orders" class="btn btn-outline-dark">View all orders</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Saved Addresses Section -->
+                    <section id="address" class="mb-4">
+                        <h2>Saved Addresses</h2>
+                        {{#if addresses.length}}
+                        <div class="address-list">
+                            {{#each addresses}}
+                            <div class="address-box">
+                                <p><strong>Name:</strong> {{this.name}}</p>
+                                <p><strong>Number:</strong> {{this.number}}</p>
+                                <p><strong>Address:</strong> {{this.address}}</p>
+                                <p><strong>City:</strong> {{this.city}}</p>
+                                <p><strong>Pincode:</strong> {{this.pincode}}</p>
+                                <p><strong>State:</strong> {{this.state}}</p>
+                                <p><strong>Country:</strong> {{this.country}}</p>
+                                <p><strong>Type:</strong> {{this.type}}</p>
+
+                                <a href="/addresses/{{this._id}}/edit">Edit</a>
+
+
+
+                                <form action="/addresses/{{this._id}}/delete" method="post">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </div>
+                            {{/each}}
+                        </div>
+                        {{else}}
+                        <p>No addresses found</p>
+                        {{/if}}
+
+                        <div class="text-center mt-3">
+                            <a href="/add-address" class="btn btn-outline-dark">Manage Address</a>
+                        </div>
+                    </section>
+
+                    <!-- Notifications Section -->
+
+                    <section id="notifications" class="mb-4">
+
+                        <h2>Notifications</h2>
+                        {{#if Notifications}}
+                        {{#each Notifications}}
+                        <div class="alert alert-success" role="alert">
+                            date:{{this.createdAt}}<br>{{this.message}}
+
+                        </div>
+                        {{/each}}
+                        {{else}}
+                        <p>no Notifications</p>
+                        {{/if}}
+                    </section>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        function toggleWalletBalance() {
+            const walletBalance = document.getElementById('wallet-balance');
+            if (walletBalance.style.display === 'none' || walletBalance.style.display === '') {
+                walletBalance.style.display = 'block';
+            } else {
+                walletBalance.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

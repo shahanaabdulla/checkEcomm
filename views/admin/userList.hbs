@@ -1,0 +1,110 @@
+
+
+
+{{!-- <header>
+      <nav class="navbar navbar-expand-lg navbar-dark"  style="background-color:cornflowerblue">
+        <a class="navbar-brand px-4" href="#">Admin Panel</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto px-4">
+            {{!-- <li class="nav-item active">
+              <a class="nav-link" href="/admin/products">Products
+                <span class="sr-only"></span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Orders</a>
+            </li>
+             <li class="nav-item">
+              <a class="nav-link" href="/admin/add-user">Users</a>
+            </li> --}}
+           
+            <li class="nav-item" style="float: left">
+                <div class="dropdown">
+  <a class="btn btn-primary" href="/admin/login">Logout</a>
+             </li>
+          </ul>
+         
+        </div>
+      </nav>
+    </header> --}}
+   
+<section>
+  <div class="container ">
+    <div class="row float-end m-5">
+      <a href="/admin/add-user" class="btn" style="background-color:deepskyblue" role="button">Add New User</a>
+    </div>
+   <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-danger">{{message}}</p>
+    <table class="table mt-5" id="usersTable">
+      <thead>
+        <tr>
+        
+          <th scope="col">Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+           <th scope="col">Mobile No</th>
+             <th scope="col">Blocked</th>
+           <th scope="col">Options</th>
+         
+        </tr>
+      </thead>
+      <tbody>
+            {{#each users}}
+        <tr>
+      
+
+          <td>{{this._id}}</td>
+          <td>{{this.name}}</td>
+          <td>{{this.email}}</td>
+           <td>{{this.mobile}}</td>
+           <td>{{this.block}}</td>
+          <td>
+            <form action="/block-user/{{this._id}}" method="post">
+  <button style="background-color:rgb(19, 239, 239) type="submit">Block User</button>
+</form>
+             
+              <form action="/unblock-user/{{this._id}}" method="post">
+  <button style="background-color:rgb(19, 239, 239) type="submit">Unblock User</button>
+</form>
+
+            <a href="/admin/edit-user/{{this._id}}" class="btn" style="background-color:rgb(19, 239, 239)" >Edit</a>
+            
+            <a href="/admin/delete-user/{{this._id}}" class="btn " style="background-color:rgb(161, 128, 238)"
+              onclick="return confirm('Are You sure?')">Delete</a>
+          </td>
+        </tr>
+         {{/each}}
+         
+      </tbody>
+    </table>
+    <div class="row">
+    </div>
+  </div>
+  
+</section>
+  
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables.css">
+   <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables_themeroller.css">
+   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('#usersTable').DataTable();
+});
+
+</script>
+
+
+

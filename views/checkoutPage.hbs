@@ -1,0 +1,237 @@
+
+
+<section class="bg-light py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-xl-8 col-lg-8 mb-4">
+        <!-- Checkout -->
+        <div class="card shadow-0 border">
+          <div class="p-4">
+            <hr class="my-4" />
+            <h5 class="card-title mb-3">Shipping info</h5>
+            <!-- Display addresses -->
+            <form id="checkoutForm" action="/place-order" method="post"> <!-- Form for placing order -->
+              <div class="row mb-3">
+                {{#each addresses}}
+                <div class="col-lg-8 mb-3">
+                  <div class="form-check h-100 border rounded-3">
+                    <div class="p-3">
+                      {{#if @first}}
+                      <h6 class="card-title mb-3">Default address</h6>
+                      {{else}}
+                      <h6 class="card-title mb-3">Other addresses</h6>
+                      {{/if}}
+                     <input class="form-check-input" type="radio" name="shippingAddress" id="shippingAddress{{_id}}" value="{{name}},{{address}},{{city}}" {{#if isDefault}}checked{{/if}}/>
+<label class="form-check-label" for="shippingAddress{{_id}}">{{name}} - {{address}}- {{city}}</label>
+
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <strong>{{name}}</strong>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-12">
+                            {{address}} <br />
+                            {{city}}, {{state}}, {{country}} <br />
+                            Pincode: {{pincode}}
+                          </div>
+                        </div>
+                      </label>
+                        <a href="/addresses/{{_id}}/editcheckout" class="btn btn-primary">Edit</a>
+                         <button type="button" class="btn btn-danger remove-address-btn" data-address-id="{{_id}}">Remove</button>
+                    </div>
+                  </div>
+                </div>
+                {{/each}}
+                <!-- Add new address button for each address section -->
+                <div class="col-lg-8 mb-3">
+                  <a href="/checkout/add" class="btn btn-primary">Add Address</a>
+                </div>
+              </div>
+              <!-- Add new address button -->
+              <div class="row mb-3">
+                <div class="col-lg-8">
+                  <h5 class="card-title mb-3">Payment method</h5>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCOD" value="COD" checked>
+                    <label class="form-check-label" for="paymentCOD">
+                      Cash on Delivery
+                    </label>
+                  </div>
+                  <!-- Add PayPal option -->
+<div class="form-check mb-3">
+  <input class="form-check-input" type="radio" name="paymentMethod" id="paymentRazorpay" value="Razorpay">
+  <label class="form-check-label" for="paymentRazorpay">
+    Razorpay
+  </label>
+</div>
+
+                </div>
+              </div>
+              <div class="float-end">
+                <button class="btn btn-light border">Cancel</button>
+                <button class="btn btn-success shadow-0 border" type="submit">Place Order</button>
+                 <input type="hidden" id="hiddenCouponCode" name="couponCode" value="" />
+                 <!-- Submit button for placing order -->
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+     <div class="col-xl-4 col-lg-4 d-flex justify-content-center justify-content-lg-end">
+        <div class="ms-lg-4 mt-4 mt-lg-0" style="max-width: 320px;">
+          <!-- Summary Section -->
+          <h6 class="mb-3">Summary</h6>
+          <div class="d-flex justify-content-between">
+            <p class="mb-2">Total price:</p>
+            <p class="mb-2" id="totalPrice">₹{{calculateTotalPrice cart.products}}</p>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="mb-2">Discount:</p>
+            <p class="mb-2 text-danger" id="discountAmount">- ₹0.00</p>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="mb-2">Shipping cost:</p>
+            <p class="mb-2">+ ₹14.00</p>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between">
+            <p class="mb-2">Final total:</p>
+            <p class="mb-2 fw-bold" id="finalTotal">₹{{calculateTotalPrice cart.products}}</p>
+          </div>
+          <div class="input-group mt-3 mb-4">
+            <input type="text" class="form-control border" id="couponCodeInput" placeholder="Coupon code" />
+            <button class="btn btn-light text-primary border" id="showCouponsButton">Apply</button>
+          </div>
+          <button class="btn btn-link" id="availableCouponsButton">Available Coupons</button>
+          <hr />
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+   <div class="modal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="couponsModalLabel">Available Coupons</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="couponsList" class="list-group">
+            <!-- Coupons will be dynamically inserted here -->
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+  // JavaScript code to handle removing addresses
+  document.querySelectorAll('.remove-address-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+      // Extract address ID from the data-address-id attribute
+      const addressId = this.getAttribute('data-address-id');
+      // Optionally, confirm with the user before removing the address
+      if (confirm('Are you sure you want to remove this address?')) {
+        // Proceed with removing the address from the page
+        var addressContainer = this.closest('.form-check');
+        if (addressContainer) {
+          addressContainer.remove(); // Remove the address container from the DOM
+          // Send a request to the backend to delete the address from the database
+          fetch(`/addresses/${addressId}/deletecheckout`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            // Optionally, include additional data in the request body
+            body: JSON.stringify({ addressId: addressId })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to delete address');
+            }
+            // Optionally, handle the response from the backend
+            return response.json();
+          })
+          .then(data => {
+            console.log('Address deleted successfully:', data);
+          })
+          .catch(error => {
+            console.error('Error deleting address:', error);
+            // Optionally, display an error message to the user
+          });
+        }
+      }
+    });
+  });
+
+
+$(document).ready(function() {
+    let orderTotal = parseFloat('{{calculateTotalPrice cart.products}}');
+
+    // Function to show coupons modal and fetch available coupons
+    async function showCouponsModal() {
+      try {
+        const response = await fetch('/order/coupons');
+        const coupons = await response.json();
+        console.log(coupons)
+        const couponsList = $('#couponsList');
+        couponsList.empty();
+        if (coupons.length > 0) {
+          coupons.forEach(coupon => {
+            const listItem = `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                ${coupon.code} - ${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue}
+                <button class="btn btn-primary btn-sm apply-coupon" data-code="${coupon.code}" data-discounttype="${coupon.discountType}" data-discountvalue="${coupon.discountValue}">Apply</button>
+              </li>
+            `;
+            couponsList.append(listItem);
+          });
+          $('#couponsModal').modal('show');
+        } else {
+          alert('No available coupons.');
+        }
+      } catch (error) {
+        console.error('Error fetching coupons:', error);
+      }
+    }
+
+    // Show coupons modal when clicking the input field or apply button
+    $('#couponCodeInput, #showCouponsButton, #availableCouponsButton').click(function() {
+      showCouponsModal();
+    });
+
+    // Handle coupon application
+    $(document).on('click', '.apply-coupon', function() {
+      const code = $(this).data('code');
+      const discountType = $(this).data('discounttype');
+      const discountValue = $(this).data('discountvalue');
+      let discountAmount = 0;
+
+      if (discountType === 'percentage') {
+        discountAmount = (discountValue / 100) * orderTotal;
+      } else if (discountType === 'fixed') {
+        discountAmount = discountValue;
+      }
+
+      const newTotal = Math.max(orderTotal - discountAmount, 0);
+      $('#totalPrice').text(`₹${newTotal.toFixed(2)}`);
+      $('#discountAmount').text(`- ₹${discountAmount.toFixed(2)}`);
+      $('#finalTotal').text(`₹${newTotal.toFixed(2)}`);
+        $('#hiddenCouponCode').val(code);
+
+      $('#couponsModal').modal('hide');
+      alert(`Coupon ${code} applied successfully!`);
+    });
+  });
+ 
+</script>

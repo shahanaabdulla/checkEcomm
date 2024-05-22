@@ -1,0 +1,516 @@
+{{!-- <section class="inner_page_head">
+    <div class="container_fuild">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="full">
+                    <h3>Product Grid</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end inner page section -->
+<!-- product section -->
+<section class="product_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>
+                Our <span>products</span>
+            </h2>
+            <!-- Add this HTML code within your section -->
+            <div class="sort-by-container">
+                <label for="sort-by">Sort By:</label>
+                <select id="sort-by" onchange="sortProducts()">
+                    <option value="">Select...</option>
+                    <option value="popularity">Popularity</option>
+                    <option value="priceLowToHigh">Price: Low to High</option>
+                    <option value="priceHighToLow">Price: High to Low</option>
+                    <option value="averageRatings">Average Ratings</option>
+                    <option value="featured">Featured</option>
+                    <option value="newArrivals">New Arrivals</option>
+                    <option value="aToZ">A - Z</option>
+                    <option value="zToA">Z - A</option>
+                </select>
+            </div>
+
+        </div>
+        <div class="row">
+            {{!-- {{#each products}}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="box">
+                    <div class="option_container">
+                        <div class="options">
+                            <a href="" class="option1">
+                                Add to Cart
+                            </a>
+                            <a href="" class="option2">
+                                Buy Now
+                            </a>
+                        </div>
+                    </div>
+                    <div class="img-box">
+                        <a href="">
+                            <img src="/productImages/{{this.image}}" alt="{{this.name}}">
+                        </a>
+                    </div>
+                    <div class="detail-box">
+                        <h5>
+                            {{this.name}}
+                        </h5>
+                        <h6>
+                            {{this.price}}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            {{/each}} --}}
+
+            {{!-- {{#each products}}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="box">
+                    <div class="img-box">
+                        <a href="/products/{{this._id}}">
+                            <img src="/productImages/{{this.image}}" alt="{{this.name}}">
+                        </a>
+                    </div>
+                    <div class="detail-box">
+                        <h5>{{this.name}}</h5>
+                        <h6> ₹ {{this.price}}</h6>
+                    </div>
+                    <div>
+                        {{this.description}}
+                    </div>
+                    <div>
+                        <div class="options">
+                            <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
+
+                                <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                                <input type="hidden" name="productId" value="{{this._id}}">
+                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                            </form>
+                            <a href="" class="option2">
+                                Buy Now
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        <div class="btn-box">
+            <a href="">
+                View All products
+            </a>
+        </div>
+    </div>
+</section> --}}
+<!-- end product section -->
+<!-- footer section -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Products</title>
+    <style>
+        /* CSS for the lines under each filter section */
+        .filter_section>div {
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+
+        .btn-box {
+            text-align: center;
+            /* Center align the content */
+            margin-top: 20px;
+            /* Add space between the product grid and the button */
+        }
+
+        .btn-view-all {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            /* Set button background color */
+            color: #fff;
+            /* Set button text color */
+            text-decoration: none;
+            /* Remove default underline */
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn-view-all:hover {
+            background-color: #0056b3;
+            /* Darken button color on hover */
+        }
+
+        .pagination {
+            text-align: center;
+            /* Center align the pagination buttons */
+            margin-top: 20px;
+            /* Add space between the product grid and the pagination */
+            margin-left: 900px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            /* Display the pagination buttons inline */
+            margin: 0 5px;
+            /* Add space between the pagination buttons */
+            padding: 5px 10px;
+            /* Add padding to the pagination buttons */
+            background-color: #f0f0f0;
+            /* Set background color */
+            color: #333;
+            /* Set text color */
+            text-decoration: none;
+            /* Remove default underline */
+            border-radius: 5px;
+            /* Add border radius for rounded corners */
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            /* Set background color for active button */
+            color: #fff;
+            /* Set text color for active button */
+        }
+
+        .pagination a:hover {
+            background-color: #ccc;
+            /* Set background color on hover */
+        }
+
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="inner_page_head">
+        <div class="container_fuild">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="full">
+                        <h3>Product Grid</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container-fluid">
+        <!-- Sorting section and "Our Products" heading -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="heading_container heading_center">
+                    <h2>Our <span>products</span></h2>
+                    <div class="sort-by-container">
+                        <label for="sort-by">Sort By:</label>
+                        <select id="sort-by" onchange="sortProducts()">
+                            <option value="">Select...</option>
+                            <option value="popularity">Popularity</option>
+                            <option value="priceLowToHigh">Price: Low to High</option>
+                            <option value="priceHighToLow">Price: High to Low</option>
+                            <option value="averageRatings">Average Ratings</option>
+                            <option value="featured">Featured</option>
+                            <option value="newArrivals">New Arrivals</option>
+                            <option value="aToZ">A - Z</option>
+                            <option value="zToA">Z - A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter section row -->
+        <div class="row">
+            <!-- Filter section -->
+            <div class="col-md-3  pl-5 pt-5">
+                <section class="filter_section">
+                    <h2>Filters</h2>
+
+                    <!-- Category filter -->
+
+
+                    <!-- Color filter -->
+                    <div class="filter_color">
+                        <h3>Color</h3>
+                        <div>
+                            <label><input type="checkbox" name="color" value="red"> Red</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="color" value="blue"> Blue</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="color" value="green"> Green</label>
+                        </div>
+                        <!-- Add more color options as needed -->
+                    </div>
+
+                    <div class="filter_size">
+                        <h3>Size</h3>
+                        <div>
+                            <label><input type="checkbox" name="size" value="S"> S</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="size" value="M"> M</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="size" value="L"> L</label>
+                        </div>
+                        <!-- Add more size options as needed -->
+                    </div>
+
+                    <!-- Price filter -->
+                    <div class="filter_price">
+                        <h3>Price</h3>
+                        <div>
+                            <label><input type="checkbox" name="price" value="0-50"> Below $50</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="price" value="50-100">$50 - $100</label>
+                        </div>
+                        <div>
+                            <label><input type="checkbox" name="price" value="100-200">$100 - $200</label>
+                        </div>
+                        <!-- Add more price range options as needed -->
+                    </div>
+
+                    <button onclick="applyFilters()">Apply Filters</button>
+                </section>
+            </div>
+
+            <!-- Product section -->
+            <div class="col-md-9 pr-5">
+                <section class="product_section layout_padding">
+                    <!-- Product grid -->
+                    <div class="row">
+                        {{#if user}}
+                        {{#each products}}
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="box">
+                                {{#if this.isWishlisted}}
+                                <button onclick="removeFromWishlist('{{this._id}}')" class="wishlist-btn">
+                                    <i id="redWishlistIcon_{{this._id}}" class="fa-solid fa-heart red"></i>
+                                </button>
+                                {{else}}
+                                <button onclick="addToWishlist('{{this._id}}')" class="wishlist-btn">
+                                    <i id="wishlistIcon_{{this._id}}" class="far fa-heart"></i>
+                                </button>
+                                {{/if}}
+
+                                <div class="img-box">
+                                    <a href="/products/{{this._id}}">
+                                        <img src="{{this.image}}" alt="{{this.name}}">
+                                    </a>
+
+
+
+
+                                </div>
+
+                                <div class="detail-box">
+                                    <h5>{{this.name}}</h5>
+                                    <h6> ₹ {{this.price}}</h6>
+                                </div>
+                                <div>
+                                    {{this.description}}
+                                </div>
+
+                                <div>
+                                    <div class="options pt-5">
+                                        <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
+                                            <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                                            <input type="hidden" name="productId" value="{{this._id}}">
+                                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                        </form>
+
+                                        <a href="" class="option2">
+                                            Buy Now
+
+                                        </a>
+
+
+
+                                        <!-- Code for logged-in user -->
+
+
+
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                        {{else}}
+                        {{#each products}}
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="box">
+                                <div class="img-box">
+                                    <a href="/products/{{this._id}}">
+                                        <img src="{{this.image}}" alt="{{this.name}}">
+                                    </a>
+                                </div>
+                                <div class="detail-box">
+                                    <h5>{{this.name}}</h5>
+                                    <h6> ₹ {{this.price}}</h6>
+                                </div>
+                                <div>
+                                    {{this.description}}
+                                </div>
+                                <div>
+                                    <div class="options pt-5">
+                                        <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
+                                            <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                                            <input type="hidden" name="productId" value="{{this._id}}">
+                                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                        </form>
+
+                                        <a href="" class="option2">
+                                            Buy Now
+
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                        {{/if}}
+
+
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination ">
+        {{#each paginationButtons}}
+        {{#if (isCurrentPage ../currentPage this)}}
+        <a href="/products?page={{this}}" class="active">{{this}}</a>
+        {{else}}
+        <a href="/products?page={{this}}">{{this}}</a>
+        {{/if}}
+        {{/each}}
+    </div>
+    <script>
+        function sortProducts() {
+            const searchQuery = new URLSearchParams(window.location.search).get('q');
+            const selectedOption = document.getElementById('sort-by').value;
+
+            if (searchQuery) {
+                // If a search query is present, append sorting option to existing URL
+                window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&sortBy=${selectedOption}`;
+            } else {
+                // If no search query is present, redirect to sorting route
+                window.location.href = `/products/sort/${selectedOption}`;
+            }
+        }
+
+        function applyFilters() {
+            const colorFilters = Array.from(document.querySelectorAll('input[name="color"]:checked')).map(cb => cb.value);
+            const sizeFilters = Array.from(document.querySelectorAll('input[name="size"]:checked')).map(cb => cb.value);
+            const priceFilters = Array.from(document.querySelectorAll('input[name="price"]:checked')).map(cb => cb.value);
+
+            // Construct filter parameters
+            const filterParams = new URLSearchParams();
+            if (colorFilters.length > 0) filterParams.append('color', colorFilters.join(','));
+            if (sizeFilters.length > 0) filterParams.append('size', sizeFilters.join(','));
+            if (priceFilters.length > 0) filterParams.append('price', priceFilters.join(','));
+
+            // Get the search query from the URL
+            const searchQuery = new URLSearchParams(window.location.search).get('q');
+            const url = searchQuery ? `/api/products?q=${encodeURIComponent(searchQuery)}&${filterParams.toString()}` : `/api/products?${filterParams.toString()}`;
+
+            // Fetch filtered products from backend
+            fetch(url)
+                .then(response => response.json())
+                .then(filteredProducts => {
+                    // Display filtered products
+                    const productsContainer = document.querySelector('.product_section .row');
+                    productsContainer.innerHTML = ''; // Clear previous products
+                    filteredProducts.forEach(product => {
+                        const productElement = document.createElement('div');
+                        productElement.classList.add('col-sm-6', 'col-md-4', 'col-lg-3');
+                        productElement.innerHTML = `
+                    <div class="box">
+                        <div class="img-box">
+                            <a href="/products/${product._id}">
+                                <img src="${product.image}" alt="${product.name}">
+                            </a>
+                        </div>
+                        <div class="detail-box">
+                            <h5>${product.name}</h5>
+                            <h6> ₹ ${product.price}</h6>
+                        </div>
+                        <div>
+                            ${product.description}
+                        </div>
+                        <div>
+                            <div class="options">
+                                <form id="addToCartForm_${product._id}" action="/add-to-cart" method="post">
+                                    <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                                    <input type="hidden" name="productId" value="${product._id}">
+                                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                </form>
+                                <a href="" class="option2">
+                                    Buy Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+                        productsContainer.appendChild(productElement);
+                    });
+                })
+                .catch(error => console.error('Error fetching filtered products:', error));
+        }
+
+
+        async function addToWishlist(productId) {
+            try {
+                // Perform an AJAX request to add the product to the wishlist
+                const response = await fetch(`/add-wishlist/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // If you need to send additional data, you can pass it in the body
+                    // body: JSON.stringify({ productId }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add product to wishlist');
+                }
+                 
+       
+                // Change heart icon color to red
+                 const wishlistIcon = document.getElementById(`wishlistIcon_${productId}`);
+        wishlistIcon.id = `redWishlistIcon_${productId}`; // Change the ID
+        wishlistIcon.classList.remove('far'); // Remove empty heart class
+        wishlistIcon.classList.add('fa-solid'); // Add filled heart class
+        wishlistIcon.style.color = 'red'; 
+              
+            } catch (error) {
+                console.error('Error adding product to wishlist:', error);
+                // Handle error here, e.g., display an error message to the user
+            }
+        }
+
+        
+
+        </script>
+        
+
+</body>
+
+</html>

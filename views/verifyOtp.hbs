@@ -1,0 +1,52 @@
+
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+</head>
+<body>
+    <h2>OTP Verification</h2>
+    <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-success">Check your email for the OTP</p>
+    <form action="/verifyOTP" method="POST">
+        <label for="otp">Enter OTP:</label>
+        <input class="w-50" type="text" id="otp" name="otp" required>
+        <input type="hidden" name="email" value="{{email}}"> <!-- Pass email as hidden input -->
+        <button type="submit">Verify OTP</button>
+        <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4">{{message}}</p>
+    </form>
+    <form action="/resendOTP" method="POST">
+        <input type="hidden" name="email" value="{{email}}">
+        <button type="submit" id="resend-btn" disabled>Resend OTP</button> <!-- Disable button initially -->
+        <div id="otp-timer">00:00</div>
+    </form>
+
+    <script>
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            const intervalId = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(intervalId);
+                    document.getElementById('resend-btn').disabled = false; // Enable resend button when timer expires
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            const fiveMinutes = 60 * 5, // 5 minutes
+                display = document.querySelector('#otp-timer');
+            startTimer(fiveMinutes, display);
+        };
+    </script>
+</body>
+</html>
+

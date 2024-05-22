@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razorpay Payment</title>
+  <!-- Include Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+  <h2>Razorpay Payment Page</h2>
+  <p>Complete your payment securely with Razorpay:</p>
+  
+  <!-- Display the payment amount -->
+  <p>Amount: {{totalPrice}} {{razorpayOrder.currency}}</p>
+
+  <!-- Form to submit payment -->
+  <form id="razorpayForm" action="/razorpay/success" method="POST">
+    <input type="hidden" name="orderId" value="{{razorpayOrder.id}}">
+    <script>
+      var options = {
+        "key": "{{razorpayOrder.key}}",
+        "amount": "{{razorpayOrder.amount}}", // Ensure this is in the smallest currency unit (e.g., paisa for INR)
+        "currency": "{{razorpayOrder.currency}}",
+        "name": "Yoobuy",
+        "description": "Purchase Description",
+        "order_id": "{{razorpayOrder.id}}",
+        "handler": function(response) {
+          // Handle successful payment
+          console.log(response);
+          document.getElementById('razorpayForm').submit(); 
+           window.location.href = "/razorpay/success";// Submit the form to backend for further processing
+        },
+        "prefill": {
+          "name": "{{user.name}}",
+          "email": "{{user.email}}",
+          "contact": "{{user.mobile}}"
+        },
+        "notes": {
+          "address": "{{shippingAddress}}"
+        },
+        "theme": {
+          "color": "#F37254"
+        }
+      };
+      var rzp = new Razorpay(options);
+      rzp.open();
+    </script>
+  </form>
+
+</body>
+
+</html>

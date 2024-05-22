@@ -1,0 +1,100 @@
+
+
+
+    <style>
+        /* Styles specific to the order confirmation page */
+        .order-confirmation-page .order {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .confirmation {
+            background-color: #343a40 !important;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .order-confirmation-page main {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: -10px; /* Overlapping header */
+        }
+
+        .order-confirmation-page section {
+            margin-bottom: 30px;
+        }
+
+        .order-confirmation-page h1, .order-confirmation-page h2, .order-confirmation-page h3 {
+            margin-top: 0;
+        }
+
+        .order-confirmation-page ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .order-confirmation-page li {
+            margin-bottom: 10px;
+        }
+
+        .order-confirmation-page footer {
+            background-color: #343a40 !important;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .order-confirmation-page button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .order-confirmation-page button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body class="order-confirmation-page">
+    <div class="container order">
+      <div class="confirmation">
+            <h1>Order Confirmation</h1>
+      </div>
+        <main>
+            <section>
+                <h2>Thank You!</h2>
+                <p>Your order has been successfully placed.</p>
+            </section>
+            <section>
+                <h3>Order Details</h3>
+                <ul>
+                    <li><strong>Order ID:</strong> {{orderID}}</li>
+                    <li><strong>Payment Method:</strong> Cash on Delivery</li>
+                </ul>
+            </section>
+        </main>
+        <footer>
+            <button onclick="viewOrder()">View Order</button>
+        </footer>
+    </div>
+
+    <script>
+        function viewOrder() {
+            // Redirect the user to the order details page
+            window.location.href = '/orders';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+
+ <link href="cropper/cropper.css" rel="stylesheet">
+    <!-- Normalize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <!-- Cropper CSS -->
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css'>
+    <style>
+        .page {
+            margin: 1em auto;
+            max-width: 768px;
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: 100%;
+        }
+
+        .box {
+            padding: 0.5em;
+            width: 100%;
+            margin: 0.5em;
+        }
+
+        .box-2 {
+            padding: 0.5em;
+            width: calc(100% / 2 - 1em);
+        }
+
+        .options label,
+        .options input {
+            width: 4em;
+            padding: 0.5em 1em;
+        }
+
+        .btn {
+            background: white;
+            color: black;
+            border: 1px solid black;
+            padding: 0.5em 1em;
+            text-decoration: none;
+            margin: 0.8em 0.3em;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
+
+<section class="vh-100" style="background-color: #eee">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-12 col-xl-11">
+        <div class="card text-black" style="border-radius: 25px">
+          <div class="card-body p-md-5">
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+                <p class="text-center text-info h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+                  Update Product
+                </p>
+        {{#each productData}}
+                <form class="mx-1 mx-md-4" action="" method="POST" role="form" enctype="multipart/form-data">
+                    
+                  <div class="d-flex flex-row align-items-center mb-4">
+                   
+                    <div class="form-outline flex-fill mb-0">
+                      <input type="text" class="form-control" value="{{this.name}}" name="name" placeholder="Name" required/>
+                    </div>
+                  </div>
+
+                 
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="description"
+                        placeholder="Description"
+                        required
+                       value="{{this.description}}"
+                      />
+                      
+                    </div>
+                  </div>
+
+                  {{!-- <div class="d-flex flex-row align-items-center mb-4">
+                    
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="category"
+                        placeholder="Category"
+                        required
+                       value="{{this.category}}"
+                      />
+                      
+                    </div>
+                  </div> --}}
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                   
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="size"
+                        placeholder="Size"
+                        required
+                        value="{{this.size}}"
+                      />
+                      
+                    </div>
+                  </div>
+
+
+                   <div class="d-flex flex-row align-items-center mb-4">
+                   
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="price"
+                        placeholder="Price"
+                        required
+                        value="{{this.price}}"
+                      />
+                      
+                    </div>
+                  </div>
+
+                   <div class="d-flex flex-row align-items-center mb-4">
+                   
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="stock"
+                        placeholder="Stock"
+                        required
+                        value="{{this.stock}}"
+                      />
+                      
+                    </div>
+                  </div>
+                  <div class="d-flex flex-row align-items-center mb-4">
+                   
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="category"
+                        placeholder="category"
+                        required
+                        value="{{this.category.name}}"
+                      />
+                      
+                    </div>
+                  </div>
+              
+
+                 <div class="d-flex flex-row align-items-center mb-4">
+  <div class="form-outline flex-fill mb-0">
+    {{#if this.images}}
+      {{#each this.images}}
+        <div class="image-preview" style="display: inline-block; margin-right: 10px;">
+          <img src="/productImages/{{this}}" alt="Selected Image" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
+    
+        </div>
+      {{/each}}
+    {{/if}}
+    <input type="file" class="form-control" name="images" accept="image/*" multiple onchange="previewImages(event)">
+  </div>
+</div>
+
+
+
+                   
+                     <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="active" name="active" value="true">
+            <label class="form-check-label" for="active">Active </label>
+          </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="isFeatured" name="isFeatured" value="true">
+            <label class="form-check-label" for="isFeatured">isFeatured </label>
+          </div>
+                  {{!-- <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input
+                        type="password"
+                        class="form-control"
+                        placeholder="Enter Password"
+                        name="password"
+                        required
+                        value="{{user.password}}"
+                      />
+                     
+                    </div>
+                  </div> --}}
+                     <main class="page">
+               <div class="d-flex flex-row align-items-center mb-4">
+  <div class="form-outline flex-fill mb-0">
+    <img src="{{this.image}}" alt="Selected Image" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
+    {{!-- <input type="file" class="form-control" name="image" accept="image/*" onchange="previewImage(this)" style="display: inline-block; vertical-align: middle;"> --}}
+ <div class="box">
+                        <input type="file" id="file-input" name="image">
+                    </div>
+                    <!-- leftbox -->
+                    <div class="box-2">
+                        <div class="result"></div>
+                    </div>
+                    <!--rightbox-->
+                    <div class="box-2 img-result hide">
+                        <!-- result of crop -->
+                        <img class="cropped" src="" alt="">
+                    </div>
+                    <!-- input file -->
+                    <div class="box">
+                        <div class="options hide">
+                            <label> Width</label>
+                            <input type="number" class="img-w" value="300" min="100" max="1200" />
+                        </div>
+                        <!-- save btn -->
+                        <button class="btn save hide ">Save</button>
+                        <button class="btn update ">Update Product</button>
+                    </div>
+  </div>
+</div>
+</main>
+
+    
+                  {{!-- <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                      Update Product
+                    </button>
+                  </div> --}}
+
+                  <input type="hidden" name="id" value="{{this._id}}">
+                </form>
+{{/each}} 
+
+              </div>
+              <div
+                class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2"
+              >
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{{!-- {{/if}} --}}
+
+<!-- Section: Design Block -->
+ <script src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js'></script>
+    <script>
+        // Variables
+        let result = document.querySelector('.result');
+        let save = document.querySelector('.save');
+        let updateBtn = document.querySelector('.update');
+        let cropper;
+
+        // Handle image selection event
+        document.getElementById('file-input').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const img = new Image();
+                img.src = event.target.result;
+
+                // Clear previous image
+                result.innerHTML = '';
+
+                // Append the image to the result div
+                result.appendChild(img);
+
+                // Initialize Cropper
+                cropper = new Cropper(img, {
+                    aspectRatio: 1, // Aspect ratio for cropping
+                    viewMode: 1 // Set to 1 for restrict mode, 0 for unrestricted
+                });
+
+                // Show save button and cropping options
+                save.classList.remove('hide');
+                document.querySelector('.options').classList.remove('hide');
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // Handle save button click
+        save.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get cropped image data
+            const canvas = cropper.getCroppedCanvas({
+                width: parseInt(document.querySelector('.img-w').value) || 300 // Width of the cropped image
+            });
+
+            // Clear previous cropped image
+            document.querySelector('.cropped').remove();
+
+            // Create new cropped image element and append it
+            const croppedImg = document.createElement('img');
+            croppedImg.classList.add('cropped');
+            croppedImg.src = canvas.toDataURL();
+            result.appendChild(croppedImg);
+
+            // Show update button
+            updateBtn.classList.remove('hide');
+
+            // Set the value of the hidden input field to the cropped image data URL
+            document.getElementById('cropped-image').value = croppedImg.src;
+        });
+
+        // Handle update button click
+        updateBtn.addEventListener('click', function () {
+            // Get the form data
+            const formData = new FormData(document.getElementById('product-form'));
+            const productId = document.querySelector('input[name="id"]').value;
+
+            // Append the cropped image data to formData
+            formData.append('croppedImage', document.getElementById('cropped-image').value);
+
+            // Send an AJAX request to the backend
+            fetch('/edit-product/' + productId,{
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle success response
+                console.log(data);
+                // Redirect or update UI as needed
+            })
+            .catch(error => {
+                // Handle error
+                console.error('There was a problem with the request:', error);
+            });
+        });
+    </script>

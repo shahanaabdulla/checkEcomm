@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupon Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-5">Coupon Management</h1>
+    <form id="couponForm" class="mt-4">
+      <input type="hidden" id="couponId" name="couponId">
+      <div class="mb-3">
+        <label for="code" class="form-label">Coupon Code</label>
+        <input type="text" class="form-control" id="code" name="code" required>
+      </div>
+      <div class="mb-3">
+        <label for="discountType" class="form-label">Discount Type</label>
+        <select class="form-select" id="discountType" name="discountType" required>
+          <option value="percentage">Percentage</option>
+          <option value="fixed">Fixed Amount</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="discountValue" class="form-label">Discount Value</label>
+        <input type="number" class="form-control" id="discountValue" name="discountValue" required>
+      </div>
+      <div class="mb-3">
+        <label for="expirationDate" class="form-label">Expiration Date</label>
+        <input type="date" class="form-control" id="expirationDate" name="expirationDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="usageLimit" class="form-label">Usage Limit</label>
+        <input type="number" class="form-control" id="usageLimit" name="usageLimit" value="1" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Create/Update Coupon</button>
+    </form>
+
+    <h2 class="mt-5">Existing Coupons</h2>
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th>Coupon Code</th>
+          <th>Discount Type</th>
+          <th>Discount Value</th>
+          <th>Expiration Date</th>
+          <th>Usage Limit</th>
+          <th>Used Count</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="couponsList">
+        {{#each coupons}}
+          <tr>
+            <td>{{this.code}}</td>
+            <td>{{this.discountType}}</td>
+            <td>{{this.discountValue}}</td>
+            <td>{{formatDate this.expirationDate}}</td>
+            <td>{{this.usageLimit}}</td>
+            <td>{{this.usedCount}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editCoupon('{{this._id}}', '{{this.code}}', '{{this.discountType}}', {{this.discountValue}}, '{{this.expirationDate}}', {{this.usageLimit}})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCoupon('{{this._id}}')">Delete</button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Load existing coupons
+      const loadCoupons = async () => {
+        try {
+            const couponId = $('#couponId').val();
+          const response = await fetch(`/order/couponUpdate/${couponId}`);
+          const coupons = await response.json();
+          $('#couponsList').empty();
+          coupons.forEach(coupon => {
+            $('#couponsList').append(`
+              <tr>
+                <td>${coupon.code}</td>
+                <td>${coupon.discountType}</td>
+                <td>${coupon.discountValue}</td>
+                <td>${new Date(coupon.expirationDate).toLocaleDateString()}</td>
+                <td>${coupon.usageLimit}</td>
+                <td>${coupon.usedCount}</td>
+                <td>
+                  <button class="btn btn-warning btn-sm" onclick="editCoupon('${coupon._id}', '${coupon.code}', '${coupon.discountType}', ${coupon.discountValue}, '${coupon.expirationDate}', ${coupon.usageLimit})">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${coupon._id}')">Delete</button>
+                </td>
+              </tr>
+            `);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      loadCoupons();
+
+      // Create or update coupon
+      $('#couponForm').submit(async function(event) {
+        event.preventDefault();
+        const formData = $(this).serialize();
+        const couponId = $('#couponId').val();
+        const url = couponId ? `/order/couponUpdate/${couponId}` : '/order/couponCreate';
+        const method = couponId ? 'PUT' : 'POST';
+
+        try {
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+          });
+          if (response.ok) {
+            loadCoupons();
+            this.reset();
+            $('#couponId').val('');
+          } else {
+            const error = await response.json();
+            alert(error.message);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      // Edit coupon
+      window.editCoupon = (id, code, discountType, discountValue, expirationDate, usageLimit) => {
+        $('#couponId').val(id);
+        $('#code').val(code);
+        $('#discountType').val(discountType);
+        $('#discountValue').val(discountValue);
+        $('#expirationDate').val(new Date(expirationDate).toISOString().substr(0, 10));
+        $('#usageLimit').val(usageLimit);
+      };
+
+      // Delete coupon
+      window.deleteCoupon = async (id) => {
+        try {
+          const response = await fetch(`/order/couponDelete/${id}`, {
+            method: 'DELETE'
+          });
+          if (response.ok) {
+            loadCoupons();
+          } else {
+            const error = await response.json();
+            alert(error.message);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    });
+  </script>
+</body>
+</html>

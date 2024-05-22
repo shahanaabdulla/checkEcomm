@@ -1,0 +1,285 @@
+
+
+<!-- cart + summary -->
+<section class="bg-light my-5">
+  <div class="container">
+    <div class="row">
+      <!-- cart -->
+      <div class="col-lg-9">
+        <div class="card border shadow-0">
+          <div class="m-4">
+            <h4 class="card-title mb-4">Your shopping cart</h4>
+            
+          
+            {{#if cart.products.length}} <!-- Check if cart has any products -->
+              {{#each cart.products}}
+              <div class="row gy-3 mb-4">
+                <div class="col-lg-5">
+                  <div class="me-lg-5">
+                    <div class="d-flex">
+                      <img src="{{this.product.image}}" class="border rounded me-3" style="width: 96px; height: 96px;" />
+                      <div class="">
+                        <a href="#" class="nav-link">{{this.product.name}}</a>
+                        <p class="text-muted">{{this.product.description}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               <div class="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
+    <div class="mr-3">
+        <div class="input-group mb-3" style="width: 170px;">
+            <button class="btn btn-white border border-secondary px-3" type="button" onclick="decreaseQuantity('{{this.product._id}}', '{{this.product.price}}')"> <!-- Pass product ID and price as parameters -->
+    <i class="fas fa-minus"></i>
+</button>
+            <input id="quantityInput{{this.product._id}}" type="number" class="form-control text-center border border-secondary" value="{{this.quantity}}" readonly>
+            <button class="btn btn-white border border-secondary px-3" type="button" onclick="increaseQuantity('{{this.product._id}}','{{this.product.stock}}','{{this.product.price}}')">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <small id="quantityErrorMessage{{this.product._id}}" class="text-danger d-none">Out of stock</small>
+    </div>
+    <div class="">
+       <!-- Inside the loop where you display cart products -->
+<div class="col-lg col-sm-6">
+    <div class="">
+        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.price this.quantity}}</text>
+    </div>
+</div>
+
+        <small class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </small>
+    </div>
+</div>
+
+                <div class="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
+                  <div class="float-md-end">
+                    <a href="#!" class="btn btn-light border px-2 icon-hover-primary"><i class="fas fa-heart fa-lg px-1 text-secondary"></i></a>
+                    <button onclick="removeFromCart('{{this.product._id}}')" class="btn btn-light border text-danger icon-hover-danger">Remove</button>
+                  </div>
+                </div>
+              </div>
+              {{/each}}
+              <div class="border-top pt-4 mx-4 mb-4">
+                <p><i class="fas fa-truck text-muted fa-lg"></i> Free Delivery within 1-2 weeks</p>
+                <p class="text-muted">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+                </p>
+                <div class="d-flex justify-content-between mt-4">
+                  <h5  id="totalPrice">Total:  ₹ {{calculateTotalPrice cart.products}}</h5>
+                </div>
+                <button class="btn btn-primary" id="placeOrderBtn">Place Order</button>
+              </div>
+            {{else}}
+              <p>Your cart is empty</p>
+            {{/if}}
+          </div>
+        </div>
+     </div>
+      <!-- cart -->
+      <!-- summary -->
+      <div class="col-lg-3">
+        <!-- Your summary content here -->
+      </div>
+      <!-- summary -->
+    </div>
+  </div>
+</section>
+
+<!-- cart + summary -->
+<section>
+  <div class="container my-5">
+    <header class="mb-4">
+      <h3>Recommended items</h3>
+    </header>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card px-4 border shadow-0 mb-4 mb-lg-0">
+          <div class="mask px-2" style="height: 50px;">
+            <div class="d-flex justify-content-between">
+              <h6><span class="badge bg-danger pt-1 mt-3 ms-2">New</span></h6>
+              <a href="#"><i class="fas fa-heart text-primary fa-lg float-end pt-3 m-2"></i></a>
+            </div>
+          </div>
+          <a href="#" class="">
+            <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/7.webp" class="card-img-top rounded-2" />
+          </a>
+          <div class="card-body d-flex flex-column pt-3 border-top">
+            <a href="#" class="nav-link">Gaming Headset with Mic</a>
+            <div class="price-wrap mb-2">
+              <strong class="">$18.95</strong>
+              <del class="">$24.99</del>
+            </div>
+            <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+              <a href="#" class="btn btn-outline-primary w-100">Add to cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card px-4 border shadow-0 mb-4 mb-lg-0">
+          <div class="mask px-2" style="height: 50px;">
+            <a href="#"><i class="fas fa-heart text-primary fa-lg float-end pt-3 m-2"></i></a>
+          </div>
+          <a href="#" class="">
+            <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/5.webp" class="card-img-top rounded-2" />
+          </a>
+          <div class="card-body d-flex flex-column pt-3 border-top">
+            <a href="#" class="nav-link">Apple Watch Series 1 Sport </a>
+            <div class="price-wrap mb-2">
+              <strong class="">$120.00</strong>
+            </div>
+            <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+              <a href="#" class="btn btn-outline-primary w-100">Add to cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card px-4 border shadow-0">
+          <div class="mask px-2" style="height: 50px;">
+            <a href="#"><i class="fas fa-heart text-primary fa-lg float-end pt-3 m-2"></i></a>
+          </div>
+          <a href="#" class="">
+            <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/9.webp" class="card-img-top rounded-2" />
+          </a>
+          <div class="card-body d-flex flex-column pt-3 border-top">
+            <a href="#" class="nav-link">Men's Denim Jeans Shorts</a>
+            <div class="price-wrap mb-2">
+              <strong class="">$80.50</strong>
+            </div>
+            <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+              <a href="#" class="btn btn-outline-primary w-100">Add to cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card px-4 border shadow-0">
+          <div class="mask px-2" style="height: 50px;">
+            <a href="#"><i class="fas fa-heart text-primary fa-lg float-end pt-3 m-2"></i></a>
+          </div>
+          <a href="#" class="">
+            <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp" class="card-img-top rounded-2" />
+          </a>
+          <div class="card-body d-flex flex-column pt-3 border-top">
+            <a href="#" class="nav-link">Mens T-shirt Cotton Base Layer Slim fit </a>
+            <div class="price-wrap mb-2">
+              <strong class="">$13.90</strong>
+            </div>
+            <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+              <a href="#" class="btn btn-outline-primary w-100">Add to cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Recommended -->
+
+<!-- Footer -->
+<script>
+  const removeFromCart = async (productId) => {
+    try {
+        // Ask for confirmation
+        const confirmed = confirm('Are you sure you want to remove this product from the cart?');
+        
+        if (!confirmed) {
+            return; // Do nothing if the user cancels the confirmation
+        }
+
+        const response = await fetch(`/cart/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to remove product from cart');
+        }
+          window.location.href = '/cart';
+        // Handle success response here
+        // For example, reload the page or update the UI
+    } catch (error) {
+        console.error('Error:', error);
+        // Handle error here
+    }
+};
+
+</script>
+<script>
+   // Get the button element by its ID
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+    // Add a click event listener to the button
+    placeOrderBtn.addEventListener('click', function() {
+        // Redirect the user to the checkout page
+        window.location.href = '/checkout';
+    });
+
+   function decreaseQuantity(productId, price) {
+    const quantityInput = document.getElementById(`quantityInput${productId}`);
+    const totalpriceElement = document.getElementById(`totalprice${productId}`);
+    let quantity = parseInt(quantityInput.value);
+    if (quantity > 1) {
+        quantity--;
+        quantityInput.value = quantity;
+        const totalprice = price * quantity;
+        totalpriceElement.textContent = `Total Price: ₹ ${totalprice.toFixed(2)}`;
+          updateCart(productId, quantity);
+          updateTotalPrice()
+    }
+}
+
+function increaseQuantity(productId, stock, price) {
+    const quantityInput = document.getElementById(`quantityInput${productId}`);
+    const quantityErrorMessage = document.getElementById(`quantityErrorMessage${productId}`);
+    const totalpriceElement = document.getElementById(`totalprice${productId}`);
+    let quantity = parseInt(quantityInput.value);
+    const maxQuantity = stock; // Example maximum quantity from available stock
+    if (quantity < maxQuantity) {
+        quantity++;
+        quantityInput.value = quantity;
+        const totalprice = price * quantity;
+        totalpriceElement.textContent = `Total Price: ₹ ${totalprice.toFixed(2)}`;
+          updateCart(productId, quantity);
+          updateTotalPrice()
+    } else {
+        quantityErrorMessage.classList.remove('d-none');
+        setTimeout(() => {
+            quantityErrorMessage.classList.add('d-none');
+        }, 3000); // Hide the error message after 3 seconds
+    }
+}
+
+async function updateCart(productId, quantity) {
+    try {
+        const response = await fetch(`/cart/${productId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity }) // Send updated quantity in the request body
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update cart');
+        }
+    } catch (error) {
+        throw new Error('Error updating cart:', error);
+    }
+  }
+
+  function updateTotalPrice() {
+    const totalElements = document.querySelectorAll('[id^="totalprice"]');
+    let totalPrice = 0;
+    totalElements.forEach((element) => {
+        totalPrice += parseFloat(element.textContent.replace('Total Price: ₹ ', ''));
+    });
+    document.getElementById('totalPrice').textContent = `Total: ₹ ${totalPrice.toFixed(2)}`;
+}
+
+
+
+</script>

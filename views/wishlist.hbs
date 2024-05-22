@@ -1,0 +1,91 @@
+ 
+ 
+
+
+
+<div class="container">
+    <h3 class="text-center mb-4">My Wishlist</h3>
+    
+    <!-- Display success flash message -->
+    {{#if successMsg}}
+    <div class="alert alert-success" role="alert">
+        {{successMsg}}
+    </div>
+    {{/if}}
+
+    <!-- Display error flash message -->
+    {{#if error_msg}}
+    <div class="alert alert-danger" role="alert">
+        {{error_msg}}
+    </div>
+    {{/if}}
+
+    {{#if products.length}}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {{#each products}}
+        <div class="col mb-4">
+            <div class="card h-100">
+                 <button type="button" class="btn btn-link position-absolute top-0 end-0 p-2" onclick="removeFromWishlist('{{this.product._id}}')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <a href="/products/{{this.product._id}}">
+                    <img src="{{this.product.image}}" class="card-img-top" alt="{{this.product.name}}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{this.product.name}}</h5>
+                    <p class="card-text">{{this.product.description}}</p>
+                    <p class="card-text">Price: ₹{{this.product.price}}</p>
+                </div>
+                <div class="card-footer">
+                    <form id="addToCartForm_{{this.product._id}}" action="/move-to-cart/{{this.product._id}}" method="post">
+                        <button type="submit" class="btn btn-primary btn-block">Move to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <p class="text-center">Your wishlist is empty.</p>
+    {{/if}}
+</div>
+<script>
+async function removeFromWishlist(productId) {
+    try {
+        // Perform an AJAX request to remove the product from the wishlist
+        const response = await fetch(`/remove-wishlist/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to remove product from wishlist');
+        }
+
+        
+        const removedItem = await response.json();
+        console.log(removedItem.message); 
+
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error removing product from wishlist:', error);
+        // Handle error here, e.g., display an error message to the user
+    }
+}
+
+// Add an event listener to handle clicks on the cross mark icon
+document.addEventListener('click', function(event) {
+    const target = event.target;
+    if (target.classList.contains('remove-from-wishlist')) {
+        // Get the productId from the data attribute
+        const productId = target.dataset.productId;
+        // Call the removeFromWishlist function with the productId
+        removeFromWishlist(productId);
+    }
+});
+</script>
+
+

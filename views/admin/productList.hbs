@@ -1,0 +1,65 @@
+
+<section>
+  <div class="container ">
+    <div class="row float-end m-5">
+      <a href="/admin/product" class="btn" style="background-color:deepskyblue" role="button">Add New product</a>
+    </div>
+
+    <table class="table mt-5" id="usersTable">
+      <thead>
+        <tr>
+        
+          <th scope="col">Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+           <th scope="col">Size</th>
+          <th scope="col">Price</th>
+           <th scope="col">Stock</th>
+           <th scope="col">Image</th>
+            <th scope="col">Deleted</th>
+           <th scope="col">Options</th>
+         
+        </tr>
+      </thead>
+      <tbody>
+            {{#each products}}
+        <tr>
+      
+
+          <td>{{this._id}}</td>
+          <td>{{this.name}}</td>
+          <td>{{this.description}}</td>
+            <td>{{this.size}}</td>
+          <td>{{this.price}}</td>
+            <td>{{this.stock}}</td>
+           {{!-- <td>{{this.image}}</td> --}}
+          <td ><img src="{{this.image}}" style="width: 20px; height: 20px;"></td>
+            <td>{{this.isDeleted}}</td>
+          <td>
+            <a href="/admin/edit-product/{{this._id}}" class="btn" style="background-color:rgb(19, 239, 239)" >Edit</a>
+            <a href="/admin/delete-product/{{this._id}}" class="btn " style="background-color:rgb(161, 128, 238)"
+              onclick="return confirm('Are You sure?')">Delete</a>
+          </td>
+       
+        </tr>
+         {{/each}}
+      </tbody>
+    </table>
+    <div class="row">
+    </div>
+  </div>
+</section>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables.css">
+   <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables_themeroller.css">
+   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('#usersTable').DataTable();
+});
+
+</script>

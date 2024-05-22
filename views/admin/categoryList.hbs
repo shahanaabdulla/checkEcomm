@@ -1,0 +1,55 @@
+
+<section>
+  <div class="container">
+    <!-- Add New Category Button -->
+    <div class="row float-end m-5">
+      <a href="/admin/category-add" class="btn" style="background-color: deepskyblue" role="button">Add New Category</a>
+    </div>
+
+    <!-- Table to display categories -->
+    <table class="table mt-5" id="usersTable">
+      <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">isDeleted</th>
+          <th scope="col">Options</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each category}}
+        <tr>
+          <td>{{this._id}}</td>
+          <td>{{this.name}}</td>
+          <td>{{this.isDeletd}}</td>
+          <td>
+            <a href="/admin/edit-category/{{this._id}}" class="btn" style="background-color: rgb(19, 239, 239)">Edit</a>
+            <a href="/admin/{{this._id}}" class="btn" style="background-color: rgb(161, 128, 238)"
+              onclick="return confirm('Are You sure?')">Delete</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    
+    <!-- Display message if category already exists -->
+    {{#if message}}
+    <div class="row mt-3">
+      <div class="col">
+        <div class="alert alert-danger" role="alert">
+          {{message}}
+        </div>
+      </div>
+    </div>
+    {{/if}}
+    
+    <div class="row">
+    </div>
+  </div>
+</section>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('#usersTable').DataTable();
+  });
+</script>

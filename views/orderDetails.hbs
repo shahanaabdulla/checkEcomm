@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+           
+        }
+
+        {{!-- .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        } --}}
+
+        .product-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .product-box img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        .product-details {
+            flex-grow: 1;
+        }
+
+        .order-status {
+            margin-top: 20px;
+        }
+
+        .cancel-order-btn {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Details</h1>
+        <div class="product-box">
+            {{!-- <img src="{{productImage}}" alt="{{productName}}"> --}}
+            <div class="product-details">
+                <p><strong>Product Name:</strong> {{productName}}</p>
+                <p><strong>Product Price:</strong> {{productPrice}}</p>
+            
+            </div>
+        </div>
+    
+
+        {{!-- <button onclick="cancelOrder('{{orderId}}')">Cancel Order</button>
+    </div>
+</body>
+</html>
+
+<!-- Add this script tag within the <head> or <body> of your HTML page -->
+<script>
+    // Function to cancel an order
+    function cancelOrder(orderId) {
+        // Send a POST request to the backend endpoint to cancel the order
+        fetch(`/cancel-order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirect the user to the orderCancel page with updated status
+                window.location.href = `/orderCancel?status=cancelled`; // Update status here
+            } else {
+                throw new Error('Failed to cancel order');
+            }
+        })
+        .catch(error => {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. Please try again later.');
+        });
+    }
+</script> --}}

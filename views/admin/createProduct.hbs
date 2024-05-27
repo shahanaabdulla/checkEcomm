@@ -144,18 +144,18 @@
             <form id="product-form" action="/admin/product" method="POST" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="name" class="form-label">Product Name:</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                    <input type="text" class="form-control" id="name" name="name" minlength="3" required>
                     <div class="error" id="name-error"></div>
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Description:</label>
-                    <textarea class="form-control" id="description" name="description" required></textarea>
+                    <textarea class="form-control" id="description" name="description" minlength="5" required></textarea>
                     <div class="error" id="description-error"></div>
                 </div>
                 <div class="mb-3">
-                    <label for="description" class="form-label">Color:</label>
-                    <input class="form-control" id="color" name="color" required></input>
+                    <label for="color" class="form-label">Color:</label>
+                    <input class="form-control" id="color" name="color" minlength="3" required></input>
                     <div class="error" id="color-error"></div>
                 </div>
                 <div class="form-group">
@@ -169,9 +169,17 @@
                     <div class="error" id="category-error"></div>
                 </div>
 
-                <div class="mb-3">
+                 <div class="mb-3">
                     <label for="size" class="form-label">Size:</label>
-                    <input type="text" class="form-control" id="size" name="size">
+                    <select class="form-control" id="size" name="size" required>
+                        <option value="">Select size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                    <div class="error" id="size-error"></div>
                 </div>
                 <input type="hidden" id="cropped-image" name="croppedImage">
 
@@ -188,12 +196,13 @@
                     <div class="error" id="stock-error"></div>
                 </div>
 
-
-
                 <div class="mb-3">
-                    <label for="images" class="form-label">Additional Images:</label>
-                    <input type="file" class="form-control" id="images" name="images" multiple>
-                </div>
+    <label for="images" class="form-label">Additional Images:</label>
+    <input type="file" class="form-control" id="images" accept="image/*" name="images" multiple>
+    <div class="error" id="images-error"></div>
+    <div id="images-preview" class="mt-3"></div> <!-- Container for image previews -->
+</div>
+
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="active" name="active" value="true">
                     <label class="form-check-label" for="active">Active </label>
@@ -207,7 +216,7 @@
                     <label class="form-check-label" for="isFeatured">Main Image </label>
                     <!-- input file -->
                     <div class="box">
-                        <input type="file" id="file-input" name="image" required>
+                        <input type="file" id="file-input" accept="image/*" name="image" required>
                         <div class="error" id="image-error"></div>
                     </div>
                     <!-- leftbox -->
@@ -238,6 +247,29 @@
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js'></script>
     <script>
+
+         document.getElementById('images').addEventListener('change', function(event) {
+        const files = event.target.files;
+        const previewContainer = document.getElementById('images-preview');
+        previewContainer.innerHTML = ''; // Clear previous previews
+
+        if (files.length > 3) {
+            document.getElementById('images-error').textContent = 'You can only upload up to 3 additional images';
+        } else {
+            document.getElementById('images-error').textContent = '';
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100px'; // Set a max width for the preview images
+                    img.style.margin = '0.5em';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    });
         // Variables
         let result = document.querySelector('.result');
         let save = document.querySelector('.save');
@@ -381,6 +413,13 @@
             const image = document.getElementById('file-input').value;
             if (image === '') {
                 document.getElementById('image-error').textContent = 'Please select product image';
+                isValid = false;
+            }
+
+            // Validate the number of additional images
+            const images = document.getElementById('images').files;
+            if (images.length > 3) {
+                document.getElementById('images-error').textContent = 'You can only upload up to 3 additional images';
                 isValid = false;
             }
 

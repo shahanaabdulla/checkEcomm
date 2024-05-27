@@ -43,13 +43,7 @@ const adminDashboard = async (req, res) => {
     
       if (email == 'admin@gmail.com' && password == 'admin') {
     
-        req.session.admin = req.body
-        req.session.admin.loggedIn = true
-        req.session.admin.adminid = req.body.email
-        let adminid = req.session.admin.adminid
-        console.log(adminid)
-        console.log(req.session.id)
-        console.log(req.session)
+        req.session.admin = { loggedIn: true, adminId: email };
       
       res.render("./admin/dashboard.hbs", { layout: './admin/admin-layout' });
     } 

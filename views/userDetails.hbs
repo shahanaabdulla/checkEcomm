@@ -106,24 +106,50 @@
                 }
             }
 
-            .wallet-section {
-                cursor: pointer;
-                padding: 10px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                text-align: center;
-                background-color: #f8f9fa;
-            }
+           .wallet-section {
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Increased margin for better separation */
+    text-align: center;
+    background-color: #f8f9fa;
+}
 
-            .wallet-balance {
-                display: none;
-                text-align: center;
-                margin-top: 10px;
-                font-size: 18px;
-                font-weight: bold;
-            }
-        }
+.wallet-section h2 {
+    font-size: 20px; /* Smaller font size */
+    margin-bottom: 10px; /* Added margin to separate from transactions */
+}
+
+.wallet-transactions {
+    display: none;
+    margin-top: 10px;
+}
+
+.wallet-transactions h3 {
+    font-size: 16px; /* Smaller font size */
+    font-weight: bold;
+    margin-bottom: 5px; /* Added margin for better separation */
+}
+
+.wallet-transactions h4 {
+    font-size: 14px; /* Smaller font size */
+    margin-bottom: 10px; /* Added margin for better separation */
+}
+
+.wallet-transactions table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wallet-transactions th,
+.wallet-transactions td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    font-size: 12px; /* Smaller font size */
+}
+
     </style>
 </head>
 
@@ -186,13 +212,37 @@
                         {{else}}
                         <a href="/forgot-password" class="list-group-item list-group-item-action">Reset Password</a>
                         {{/if}}
-                        <div class="wallet-section" onclick="toggleWalletBalance()">
-                            Wallet
-                        </div>
-                        <div class="wallet-balance" id="wallet-balance">
-                            Balance: ₹{{user.walletBalance}}
-                        </div>
-                        <form action="/logout"><button type="submit" class="btn btn-outline-dark mt-3 mb-3">Logout</button>
+                       
+                       <div class="wallet-section" onclick="toggleWalletTransactions()">
+    <h2>Wallet</h2>
+</div>
+<div class="wallet-transactions" id="wallet-transactions">
+    <h3>Wallet Balance: ₹{{user.walletBalance}}</h3>
+    <h4>Transactions</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each user.wallet}}
+            <tr>
+                <td>{{formatDate this.date}}</td>
+                <td>{{this.description}}</td>
+                <td>₹{{this.amount}}</td>
+                <td>{{this.type}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+                        <form action="/logout">
+                            <button type="submit" class="btn btn-outline-dark mt-3 mb-3">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -220,7 +270,7 @@
                                                     class="badge badge-warning ">{{this.status}}</span>
                                                 <p>Total: ₹{{this.totalPrice}}.00</p>
                                             </div>
-                                            <p>Date: {{this.createdAt}}</p>
+                                            <p>Date: {{ formatDate this.createdAt}}</p>
                                         </li>
 
 
@@ -296,12 +346,12 @@
         </div>
     </section>
     <script>
-        function toggleWalletBalance() {
-            const walletBalance = document.getElementById('wallet-balance');
-            if (walletBalance.style.display === 'none' || walletBalance.style.display === '') {
-                walletBalance.style.display = 'block';
+        function toggleWalletTransactions() {
+            const walletTransactions = document.getElementById('wallet-transactions');
+            if (walletTransactions.style.display === 'none' || walletTransactions.style.display === '') {
+                walletTransactions.style.display = 'block';
             } else {
-                walletBalance.style.display = 'none';
+                walletTransactions.style.display = 'none';
             }
         }
     </script>

@@ -79,7 +79,13 @@
           </div>
 
           <div class="mb-3">
-            <span class="h5">₹ {{this.price}}</span>
+            <span class="h5">{{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}</span>
            
           </div>
 

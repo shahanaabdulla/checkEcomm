@@ -72,6 +72,7 @@
                 <button class="btn btn-light border">Cancel</button>
                 <button class="btn btn-success shadow-0 border" type="submit">Place Order</button>
                  <input type="hidden" id="hiddenCouponCode" name="couponCode" value="" />
+                 <input type="hidden" id="hiddenFinalTotal" name="finalTotal" value="{{calculateTotalPrice cart.products}}" />
                  <!-- Submit button for placing order -->
               </div>
             </form>
@@ -87,23 +88,34 @@
             <p class="mb-2" id="totalPrice">₹{{calculateTotalPrice cart.products}}</p>
           </div>
           <div class="d-flex justify-content-between">
-            <p class="mb-2">Discount:</p>
+            <p class="mb-2"> Coupon Discount:</p>
             <p class="mb-2 text-danger" id="discountAmount">- ₹0.00</p>
           </div>
           <div class="d-flex justify-content-between">
+  <p class="mb-2">Offer Discount:</p>
+  <p class="mb-2 text-danger" id="discountAmount">- ₹{{totalOfferDiscount}}</p>
+</div>
+          <div class="d-flex justify-content-between">
             <p class="mb-2">Shipping cost:</p>
-            <p class="mb-2">+ ₹14.00</p>
+            <p class="mb-2">+ ₹0.00</p>
           </div>
           <hr />
           <div class="d-flex justify-content-between">
             <p class="mb-2">Final total:</p>
             <p class="mb-2 fw-bold" id="finalTotal">₹{{calculateTotalPrice cart.products}}</p>
           </div>
-          <div class="input-group mt-3 mb-4">
-            <input type="text" class="form-control border" id="couponCodeInput" placeholder="Coupon code" />
-            <button class="btn btn-light text-primary border" id="showCouponsButton">Apply</button>
-          </div>
-          <button class="btn btn-link" id="availableCouponsButton">Available Coupons</button>
+           {{#hasOfferProducts cart.products}}
+     <div class="alert alert-danger" role="alert">
+        No coupons available for products on offer.
+      </div>
+    {{else}}
+      <div class="input-group mt-3 mb-4">
+        <input type="text" class="form-control border" id="couponCodeInput" placeholder="Coupon code" />
+        <button class="btn btn-light text-primary border" id="showCouponsButton">Apply</button>
+      </div>
+      <button class="btn btn-link" id="availableCouponsButton">Available Coupons</button>
+        <button class="btn btn-danger" id="removeCouponButton" style="display:none;">Remove Coupon</button>
+    {{/hasOfferProducts}}
           <hr />
         </div>
       </div>
@@ -133,15 +145,25 @@
 </section>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
   // JavaScript code to handle removing addresses
   document.querySelectorAll('.remove-address-btn').forEach(function(button) {
-    button.addEventListener('click', function() {
-      // Extract address ID from the data-address-id attribute
-      const addressId = this.getAttribute('data-address-id');
-      // Optionally, confirm with the user before removing the address
-      if (confirm('Are you sure you want to remove this address?')) {
+  button.addEventListener('click', function() {
+    // Extract address ID from the data-address-id attribute
+    const addressId = this.getAttribute('data-address-id');
+    // Use SweetAlert for the confirmation dialog
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
         // Proceed with removing the address from the page
         var addressContainer = this.closest('.form-check');
         if (addressContainer) {
@@ -163,75 +185,119 @@
             return response.json();
           })
           .then(data => {
+            Swal.fire(
+              'Deleted!',
+              'Your address has been deleted.',
+              'success'
+            );
             console.log('Address deleted successfully:', data);
           })
           .catch(error => {
             console.error('Error deleting address:', error);
-            // Optionally, display an error message to the user
+            Swal.fire(
+              
+              'Your address deleted',
+            
+            );
           });
         }
       }
     });
   });
+});
+
 
 
 $(document).ready(function() {
-    let orderTotal = parseFloat('{{calculateTotalPrice cart.products}}');
+  let orderTotal = parseFloat('{{calculateTotalPrice cart.products}}');
+  let discountAmount = 0;
+  let appliedCoupon = '';
 
-    // Function to show coupons modal and fetch available coupons
-    async function showCouponsModal() {
-      try {
-        const response = await fetch('/order/coupons');
-        const coupons = await response.json();
-        console.log(coupons)
-        const couponsList = $('#couponsList');
-        couponsList.empty();
-        if (coupons.length > 0) {
-          coupons.forEach(coupon => {
-            const listItem = `
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${coupon.code} - ${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue}
-                <button class="btn btn-primary btn-sm apply-coupon" data-code="${coupon.code}" data-discounttype="${coupon.discountType}" data-discountvalue="${coupon.discountValue}">Apply</button>
-              </li>
-            `;
-            couponsList.append(listItem);
-          });
-          $('#couponsModal').modal('show');
-        } else {
-          alert('No available coupons.');
-        }
-      } catch (error) {
-        console.error('Error fetching coupons:', error);
+  // Function to show coupons modal and fetch available coupons
+  async function showCouponsModal() {
+    try {
+      const response = await fetch('/order/coupons');
+      const coupons = await response.json();
+      const couponsList = $('#couponsList');
+      couponsList.empty();
+      if (coupons.length > 0) {
+        coupons.forEach(coupon => {
+          const listItem = `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              ${coupon.code} - ${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue}
+              <button class="btn btn-primary btn-sm apply-coupon" data-code="${coupon.code}" data-discounttype="${coupon.discountType}" data-discountvalue="${coupon.discountValue}">Apply</button>
+            </li>
+          `;
+          couponsList.append(listItem);
+        });
+        $('#couponsModal').modal('show');
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'No available coupons.',
+        });
       }
+    } catch (error) {
+      console.error('Error fetching coupons:', error);
+    }
+  }
+
+  // Show coupons modal when clicking the input field or apply button
+  $('#couponCodeInput, #showCouponsButton, #availableCouponsButton').click(function() {
+    showCouponsModal();
+  });
+
+  // Handle coupon application
+  $(document).on('click', '.apply-coupon', function() {
+    const code = $(this).data('code');
+    const discountType = $(this).data('discounttype');
+    const discountValue = $(this).data('discountvalue');
+    
+    if (discountType === 'percentage') {
+      discountAmount = (discountValue / 100) * orderTotal;
+    } else if (discountType === 'fixed') {
+      discountAmount = discountValue;
     }
 
-    // Show coupons modal when clicking the input field or apply button
-    $('#couponCodeInput, #showCouponsButton, #availableCouponsButton').click(function() {
-      showCouponsModal();
+    const newTotal = Math.max(orderTotal - discountAmount, 0);
+    $('#totalPrice').text(`₹${orderTotal.toFixed(2)}`);
+    $('#discountAmount').text(`- ₹${discountAmount.toFixed(2)}`);
+    $('#finalTotal').text(`₹${newTotal.toFixed(2)}`);
+    $('#hiddenCouponCode').val(code);
+    $('#removeCouponButton').show();
+    $('#couponsModal').modal('hide');
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Coupon Applied',
+      text: `Coupon ${code} applied successfully!`,
+      timer: 3000,
+      showConfirmButton: false,
     });
 
-    // Handle coupon application
-    $(document).on('click', '.apply-coupon', function() {
-      const code = $(this).data('code');
-      const discountType = $(this).data('discounttype');
-      const discountValue = $(this).data('discountvalue');
-      let discountAmount = 0;
-
-      if (discountType === 'percentage') {
-        discountAmount = (discountValue / 100) * orderTotal;
-      } else if (discountType === 'fixed') {
-        discountAmount = discountValue;
-      }
-
-      const newTotal = Math.max(orderTotal - discountAmount, 0);
-      $('#totalPrice').text(`₹${newTotal.toFixed(2)}`);
-      $('#discountAmount').text(`- ₹${discountAmount.toFixed(2)}`);
-      $('#finalTotal').text(`₹${newTotal.toFixed(2)}`);
-        $('#hiddenCouponCode').val(code);
-
-      $('#couponsModal').modal('hide');
-      alert(`Coupon ${code} applied successfully!`);
-    });
+    appliedCoupon = code;
   });
- 
+
+  // Handle coupon removal
+  $('#removeCouponButton').click(function() {
+    discountAmount = 0;
+    $('#discountAmount').text(`- ₹0.00`);
+    $('#finalTotal').text(`₹${orderTotal.toFixed(2)}`);
+    $('#hiddenCouponCode').val('');
+    $('#removeCouponButton').hide();
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Coupon Removed',
+      text: `Coupon ${appliedCoupon} removed successfully!`,
+      timer: 3000,
+      showConfirmButton: false,
+    });
+
+    appliedCoupon = '';
+  });
+});
+
+
 </script>

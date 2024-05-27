@@ -3,24 +3,35 @@ const router = express.Router();
 const Coupon = require('../models/couponModel');
 
 // Create a new coupon
-const couponCreate= async (req, res) => {
+const couponCreate = async (req, res) => {
   try {
-    
-        const { code, discountType, discountValue, expirationDate, usageLimit } = req.body;
-        const newCoupon = new Coupon({
-          code,
-          discountType,
-          discountValue,
-          expirationDate,
-          usageLimit
-        });
-        await newCoupon.save();
-        const coupons = await Coupon.find();
-       res.redirect('/order/coupon')
-      } catch (error) {
-        res.status(400).send({ message: error.message });
-      }
-    };
+    const { code, discountType, discountValue, expirationDate, usageLimit } = req.body;
+
+    // Check if a coupon with the same code already exists
+    const existingCoupon = await Coupon.findOne({ code });
+    if (existingCoupon) {
+      return res.status(400).send({ message: 'Coupon already exists' });
+    }
+
+    // Create and save the new coupon
+    const newCoupon = new Coupon({
+      code,
+      discountType,
+      discountValue,
+      expirationDate,
+      usageLimit
+    });
+    await newCoupon.save();
+
+    // Redirect to the coupon page or send a success response
+    res.redirect('/order/coupon');
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+};
+
+
+
 
 const couponLoad= async(req,res)=>{
     try{

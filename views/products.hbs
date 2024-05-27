@@ -1,113 +1,4 @@
-{{!-- <section class="inner_page_head">
-    <div class="container_fuild">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="full">
-                    <h3>Product Grid</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- end inner page section -->
-<!-- product section -->
-<section class="product_section layout_padding">
-    <div class="container">
-        <div class="heading_container heading_center">
-            <h2>
-                Our <span>products</span>
-            </h2>
-            <!-- Add this HTML code within your section -->
-            <div class="sort-by-container">
-                <label for="sort-by">Sort By:</label>
-                <select id="sort-by" onchange="sortProducts()">
-                    <option value="">Select...</option>
-                    <option value="popularity">Popularity</option>
-                    <option value="priceLowToHigh">Price: Low to High</option>
-                    <option value="priceHighToLow">Price: High to Low</option>
-                    <option value="averageRatings">Average Ratings</option>
-                    <option value="featured">Featured</option>
-                    <option value="newArrivals">New Arrivals</option>
-                    <option value="aToZ">A - Z</option>
-                    <option value="zToA">Z - A</option>
-                </select>
-            </div>
 
-        </div>
-        <div class="row">
-            {{!-- {{#each products}}
-            <div class="col-sm-6 col-md-4 col-lg-3">
-                <div class="box">
-                    <div class="option_container">
-                        <div class="options">
-                            <a href="" class="option1">
-                                Add to Cart
-                            </a>
-                            <a href="" class="option2">
-                                Buy Now
-                            </a>
-                        </div>
-                    </div>
-                    <div class="img-box">
-                        <a href="">
-                            <img src="/productImages/{{this.image}}" alt="{{this.name}}">
-                        </a>
-                    </div>
-                    <div class="detail-box">
-                        <h5>
-                            {{this.name}}
-                        </h5>
-                        <h6>
-                            {{this.price}}
-                        </h6>
-                    </div>
-                </div>
-            </div>
-            {{/each}} --}}
-
-            {{!-- {{#each products}}
-            <div class="col-sm-6 col-md-4 col-lg-3">
-                <div class="box">
-                    <div class="img-box">
-                        <a href="/products/{{this._id}}">
-                            <img src="/productImages/{{this.image}}" alt="{{this.name}}">
-                        </a>
-                    </div>
-                    <div class="detail-box">
-                        <h5>{{this.name}}</h5>
-                        <h6> ₹ {{this.price}}</h6>
-                    </div>
-                    <div>
-                        {{this.description}}
-                    </div>
-                    <div>
-                        <div class="options">
-                            <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
-
-                                <input type="hidden" id="quantity" name="quantity" min="1" value="1">
-                                <input type="hidden" name="productId" value="{{this._id}}">
-                                <button type="submit" class="btn btn-primary">Add to Cart</button>
-                            </form>
-                            <a href="" class="option2">
-                                Buy Now
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            {{/each}}
-        </div>
-
-        <div class="btn-box">
-            <a href="">
-                View All products
-            </a>
-        </div>
-    </div>
-</section> --}}
-<!-- end product section -->
-<!-- footer section -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -271,13 +162,13 @@
                     <div class="filter_price">
                         <h3>Price</h3>
                         <div>
-                            <label><input type="checkbox" name="price" value="0-50"> Below $50</label>
+                            <label><input type="checkbox" name="price" value="0-50"> Below  ₹50</label>
                         </div>
                         <div>
-                            <label><input type="checkbox" name="price" value="50-100">$50 - $100</label>
+                            <label><input type="checkbox" name="price" value="50-100"> ₹50 -  ₹100</label>
                         </div>
                         <div>
-                            <label><input type="checkbox" name="price" value="100-200">$100 - $200</label>
+                            <label><input type="checkbox" name="price" value="100-200"> ₹100 -  ₹200</label>
                         </div>
                         <!-- Add more price range options as needed -->
                     </div>
@@ -317,7 +208,13 @@
 
                                 <div class="detail-box">
                                     <h5>{{this.name}}</h5>
-                                    <h6> ₹ {{this.price}}</h6>
+                                    <h6>{{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}</h6>
                                 </div>
                                 <div>
                                     {{this.description}}
@@ -361,7 +258,13 @@
                                 </div>
                                 <div class="detail-box">
                                     <h5>{{this.name}}</h5>
-                                    <h6> ₹ {{this.price}}</h6>
+                                    <h6>{{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}</h6>
                                 </div>
                                 <div>
                                     {{this.description}}

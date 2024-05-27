@@ -23,7 +23,7 @@ const GoogleStrategy = require('passport-google-oauth2').Strategy;
 var indexRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 var orderRouter = require('./routes/orders')
- 
+var offerRouter = require('./routes/offers')
 
 const { handlebars } = require('hbs');
 handlebars.registerHelper('calculatePrice', (price, quantity) => price * quantity);
@@ -32,12 +32,17 @@ handlebars.registerHelper('calculateTotalPrice', (cartProducts) => {
 
   // Loop through each product in the cart and sum up their prices
   cartProducts.forEach((cartProduct) => {
-      totalPrice += cartProduct.product.price * cartProduct.quantity;
+      if (cartProduct.product.onOffer) {
+          totalPrice += cartProduct.product.offerPrice * cartProduct.quantity;
+      } else {
+          totalPrice += cartProduct.product.price * cartProduct.quantity;
+      }
   });
 
   // Return the total price
   return totalPrice.toFixed(2); // Assuming you want to display the total price with two decimal places
 });
+
 
 handlebars.registerHelper('isCurrentPage', (currentPage, pageNumber) => {
   return currentPage === pageNumber;
@@ -53,6 +58,24 @@ handlebars.registerHelper('formatDate', function(date) {
 handlebars.registerHelper('eq', function(val1, val2) {
   return val1 === val2;
 });
+
+
+handlebars.registerHelper('calculateOfferPrice', (price, discount) => {
+    return (price - (price * (discount / 100))).toFixed(2);
+});
+
+// Handlebars helper to check for offer products
+handlebars.registerHelper('hasOfferProducts', function(products, options) {
+  let hasOffer = products.some(product => product.product.onOffer);
+  return hasOffer ? options.fn(this) : options.inverse(this);
+});
+
+// Register a Handlebars helper to calculate offer discount
+
+handlebars.registerHelper('json', function(context) {
+  return JSON.stringify(context);
+});
+
 
 
 
@@ -112,6 +135,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', indexRouter);
 app.use('/', usersRouter);
 app.use('/order',orderRouter)
+app.use('/offer',offerRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

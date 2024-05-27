@@ -24,8 +24,9 @@ const razorpay= new Razorpay({
 const placeOrderWithCOD = async (req, res) => {
   try {
     const userId = req.session.user_id; // Assuming user ID is stored in session
-    const { shippingAddress, paymentMethod, couponCode } = req.body;
+    const { shippingAddress, paymentMethod, couponCode, finalTotal } = req.body;
     console.log(couponCode);
+    console.log(finalTotal)
 
     // Retrieve the cart data from the database for the logged-in user
     const cart = await Cart.findOne({ user_id: userId }).populate('products.product');
@@ -71,7 +72,7 @@ const placeOrderWithCOD = async (req, res) => {
         orderID: generateOrderID(), 
         userID: userId,
         items: orderItems,
-        totalPrice: totalPrice,
+        totalPrice: finalTotal,
         shippingAddress: shippingAddress,
         paymentMethod: paymentMethod,
         status: 'Pending',
@@ -91,7 +92,7 @@ const placeOrderWithCOD = async (req, res) => {
       return res.render('orderConfirmation', { orderID: savedOrder.orderID });
     } else if (paymentMethod === 'Razorpay') {
       const options = {
-        amount: totalPrice * 100, // Amount in paise
+        amount: finalTotal * 100, // Amount in paise
         currency: 'INR',
         receipt: uuidv4() // Generate a unique order ID
       };
@@ -100,7 +101,7 @@ const placeOrderWithCOD = async (req, res) => {
         orderID: razorpayOrder.id, 
         userID: userId,
         items: orderItems,
-        totalPrice: totalPrice,
+        totalPrice: finalTotal,
         shippingAddress: shippingAddress,
         paymentMethod: paymentMethod,
         status: 'Confirmed',
@@ -118,7 +119,7 @@ const placeOrderWithCOD = async (req, res) => {
         await coupon.save();
       }
 
-      return res.render('razorpayPaymentPage', { razorpayOrder, user, shippingAddress, totalPrice });
+      return res.render('razorpayPaymentPage', { razorpayOrder, user, shippingAddress, finalTotal });
     } else {
       // Handle other payment methods here
       return res.status(400).json({ success: false, message: 'Invalid payment method' });
@@ -213,7 +214,7 @@ const orderLoad = async(req,res)=>{
     const ordersData = await Order.find().populate({
       path: 'items.product', // Path to populate
       model: 'Product' // Model to use for population
-    })
+    })  .sort({ createdAt: -1 });
      res.render('./admin/orderList',{ orders: ordersData, layout: './admin/admin-layout' })
   }catch(error){
      console.log(error.message)
@@ -255,7 +256,7 @@ const getOrderStatus = async (req, res) => {
   try {
       // Retrieve the order from the database based on the orderId
       const orderId = req.params.orderId;
-      const order = await Order.findById(orderId);
+      const order = await Order.findById(orderId) .populate('items.product');
 
       if (!order) {
           // Handle case where order is not found
@@ -281,31 +282,48 @@ const submitReturn = async (req, res) => {
 
   try {
     // Fetch the order
-    const order = await Order.findOne({ orderID: orderId });
+    const order = await Order.findOne({ orderID: orderId }).populate('items.product');;
     if (!order) {
       return res.status(404).send('Order not found');
     }
 
     // Update order status to "Returned" and add return reason
-    order.status = 'Returned';
+    order.status = 'Return request placed';
     order.returnReason = returnReason;
+    
+    // Ensure discountAmount is set before saving
+    if (typeof order.discountAmount === 'undefined') {
+      order.discountAmount = 0; // or any default value you prefer
+    }
+    
     await order.save();
 
-    // Update user's wallet balance
+    // Update user's wallet transactions
     const user = await User.findById(order.userID);
     if (!user) {
       return res.status(404).send('User not found');
     }
-    user.walletBalance += order.totalPrice;
+
+    // Add the refund transaction to the user's wallet
+    const refundTransaction = {
+      amount: order.totalPrice,
+      type: 'credit',
+      description: `Refund for order ${orderId}`
+    };
+    const walletBalance = user.wallet.reduce((total, transaction) => total + transaction.amount, 0);
+user.walletBalance = walletBalance;
+    user.wallet.push(refundTransaction);
     await user.save();
 
     // Redirect to order status page or any other desired page
-   res.render('order-status',{order, message: 'return request placed'})
+    res.render('order-status', { order, message: 'Return request placed' });
   } catch (error) {
     console.error('Error processing return:', error);
     res.status(500).send('Internal Server Error');
   }
 };
+
+
 
 
 

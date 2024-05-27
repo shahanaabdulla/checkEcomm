@@ -11,81 +11,30 @@
             </div>
             <div id="customCarousel1" class="carousel slide" data-ride="carousel">
                <div class="carousel-inner">
-                  <div class="carousel-item active">
-                     <div class="container ">
-                        <div class="row">
-                           <div class="col-md-7 col-lg-6 ">
-                              <div class="detail-box">
-                                 <h1>
-                                    <span>
-                                    Sale 20% Off
-                                    </span>
-                                    <br>
-                                    On Everything
-                                 </h1>
-                                 <p>
-                                    Explicabo esse amet tempora quibusdam laudantium, laborum eaque magnam fugiat hic? Esse dicta aliquid error repudiandae earum suscipit fugiat molestias, veniam, vel architecto veritatis delectus repellat modi impedit sequi.
-                                 </p>
-                                 <div class="btn-box">
-                                    <a href="" class="btn1">
-                                    Shop Now
-                                    </a>
-                                 </div>
-                              </div>
-                           </div>
+                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {{#each offers}}
+        <div class="carousel-item {{#if @first}}active{{/if}}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-7 col-lg-6">
+                        <div class="detail-box">
+                            <h1>
+                                <span>{{this.name}}</span><br>
+                                {{this.discountPercentage}}% Off On {{this.category.name}} Items
+                            </h1>
+                           
+                            <div class="btn-box">
+                                <a href="/offer/{{this._id}}" class="btn1">Shop Now</a>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-                  <div class="carousel-item ">
-                     <div class="container ">
-                        <div class="row">
-                           <div class="col-md-7 col-lg-6 ">
-                              <div class="detail-box">
-                                 <h1>
-                                    <span>
-                                    Sale 20% Off
-                                    </span>
-                                    <br>
-                                    On Everything
-                                 </h1>
-                                 <p>
-                                    Explicabo esse amet tempora quibusdam laudantium, laborum eaque magnam fugiat hic? Esse dicta aliquid error repudiandae earum suscipit fugiat molestias, veniam, vel architecto veritatis delectus repellat modi impedit sequi.
-                                 </p>
-                                 <div class="btn-box">
-                                    <a href="" class="btn1">
-                                    Shop Now
-                                    </a>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="carousel-item">
-                     <div class="container ">
-                        <div class="row">
-                           <div class="col-md-7 col-lg-6 ">
-                              <div class="detail-box">
-                                 <h1>
-                                    <span>
-                                    Sale 20% Off
-                                    </span>
-                                    <br>
-                                    On Everything
-                                 </h1>
-                                 <p>
-                                    Explicabo esse amet tempora quibusdam laudantium, laborum eaque magnam fugiat hic? Esse dicta aliquid error repudiandae earum suscipit fugiat molestias, veniam, vel architecto veritatis delectus repellat modi impedit sequi.
-                                 </p>
-                                 <div class="btn-box">
-                                    <a href="" class="btn1">
-                                    Shop Now
-                                    </a>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    
                </div>
                <div class="container">
                   <ol class="carousel-indicators">
@@ -383,42 +332,49 @@
                   Our <span>products</span>
                </h2>
             </div>
-            <div class="row">
-               {{#each product}}
-               <div class="col-sm-6 col-md-4 col-lg-4">
-                  <div class="box">
-                     <div class="option_container">
-                        <div class="options">
-                           <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
-                                            <input type="hidden" id="quantity" name="quantity" min="1" value="1">
-                                            <input type="hidden" name="productId" value="{{this._id}}">
-                                            <button class="option1" type="submit" class="btn btn-primary">Add to Cart</button>
-                                        </form>
-                           <a href="" class="option2">
-                           Buy Now
-                           </a>
-                        </div>
-                     </div>
-                     <div class="img-box">
-                        <img src="{{this.image}}" alt="">
-                     </div>
-                     <div class="detail-box">
-                        <h5>
-                          {{this.name}}
-                        </h5>
-                        <h6>
-                          ₹ {{this.price}}
-                        </h6>
-                     </div>
-                  </div>
-               </div>
-               {{/each}}
-            <div class="btn-box">
-               <a href="">
-               View All products
-               </a>
+           <div class="row">
+    {{#each product}}
+    <div class="col-sm-6 col-md-4 col-lg-4">
+        <div class="box">
+            <div class="option_container">
+                <div class="options">
+                    <form id="addToCartForm_{{this._id}}" action="/add-to-cart" method="post">
+                        <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                        <input type="hidden" name="productId" value="{{this._id}}">
+                        <button class="option1" type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
+                    <a href="" class="option2">
+                        Buy Now
+                    </a>
+                </div>
             </div>
-         </div>
+            <div class="img-box">
+                <img src="{{this.image}}" alt="">
+            </div>
+            <div class="detail-box">
+                <h5>
+                    {{this.name}}
+                </h5>
+                <h6>
+                    {{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}
+                </h6>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+    <div class="btn-box">
+        <a href="">
+            View All products
+        </a>
+    </div>
+</div>
+
       </section>
       <!-- end product section -->
 

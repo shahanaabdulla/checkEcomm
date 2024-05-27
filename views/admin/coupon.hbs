@@ -9,33 +9,41 @@
 <body>
   <div class="container">
     <h1 class="mt-5">Coupon Management</h1>
-    <form id="couponForm" class="mt-4">
+    <form id="couponForm" class="mt-4" novalidate>
       <input type="hidden" id="couponId" name="couponId">
       <div class="mb-3">
         <label for="code" class="form-label">Coupon Code</label>
-        <input type="text" class="form-control" id="code" name="code" required>
+        <input type="text" class="form-control" id="code" name="code" required minlength="4" pattern="^[A-Za-z0-9]+$" title="Coupon code should contain only alphanumeric characters.">
+        <div class="invalid-feedback">Please enter a valid coupon code (alphanumeric characters only).</div>
       </div>
       <div class="mb-3">
         <label for="discountType" class="form-label">Discount Type</label>
         <select class="form-select" id="discountType" name="discountType" required>
+          <option value="" disabled selected>Select Discount Type</option>
           <option value="percentage">Percentage</option>
           <option value="fixed">Fixed Amount</option>
         </select>
+        <div class="invalid-feedback">Please select a discount type.</div>
       </div>
       <div class="mb-3">
         <label for="discountValue" class="form-label">Discount Value</label>
-        <input type="number" class="form-control" id="discountValue" name="discountValue" required>
+        <input type="number" class="form-control" id="discountValue" name="discountValue" required min="0" step="0.01" title="Discount value must be a positive number.">
+        <div class="invalid-feedback">Please enter a valid discount value.</div>
       </div>
       <div class="mb-3">
         <label for="expirationDate" class="form-label">Expiration Date</label>
         <input type="date" class="form-control" id="expirationDate" name="expirationDate" required>
+        <div class="invalid-feedback">Please enter a valid expiration date.</div>
       </div>
       <div class="mb-3">
         <label for="usageLimit" class="form-label">Usage Limit</label>
-        <input type="number" class="form-control" id="usageLimit" name="usageLimit" value="1" required>
+        <input type="number" class="form-control" id="usageLimit" name="usageLimit" value="1" required min="1">
+        <div class="invalid-feedback">Please enter a valid usage limit (minimum 1).</div>
       </div>
       <button type="submit" class="btn btn-primary">Create/Update Coupon</button>
     </form>
+
+    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
 
     <h2 class="mt-5">Existing Coupons</h2>
     <table class="table mt-3">
@@ -60,7 +68,7 @@
             <td>{{this.usageLimit}}</td>
             <td>{{this.usedCount}}</td>
             <td>
-              <button class="btn btn-warning btn-sm" onclick="editCoupon('{{this._id}}', '{{this.code}}', '{{this.discountType}}', {{this.discountValue}}, '{{this.expirationDate}}', {{this.usageLimit}})">Edit</button>
+              <button class="btn btn-warning btn-sm" onclick="editCoupon('{{this._id}}', '{{this.code}}', '{{this.discountType}}', '{{this.discountValue}}, '{{this.expirationDate}}', {{this.usageLimit}})">Edit</button>
               <button class="btn btn-danger btn-sm" onclick="deleteCoupon('{{this._id}}')">Delete</button>
             </td>
           </tr>
@@ -75,8 +83,7 @@
       // Load existing coupons
       const loadCoupons = async () => {
         try {
-            const couponId = $('#couponId').val();
-          const response = await fetch(`/order/couponUpdate/${couponId}`);
+          const response = await fetch('/order/coupons');
           const coupons = await response.json();
           $('#couponsList').empty();
           coupons.forEach(coupon => {
@@ -105,6 +112,14 @@
       // Create or update coupon
       $('#couponForm').submit(async function(event) {
         event.preventDefault();
+        $('#errorMessage').hide(); // Hide the error message area
+
+        // Check form validity
+        if (!this.checkValidity()) {
+          $(this).addClass('was-validated');
+          return;
+        }
+
         const formData = $(this).serialize();
         const couponId = $('#couponId').val();
         const url = couponId ? `/order/couponUpdate/${couponId}` : '/order/couponCreate';
@@ -122,9 +137,10 @@
             loadCoupons();
             this.reset();
             $('#couponId').val('');
+            $(this).removeClass('was-validated');
           } else {
             const error = await response.json();
-            alert(error.message);
+            $('#errorMessage').text(error.message).show();
           }
         } catch (error) {
           console.error(error);
@@ -151,7 +167,7 @@
             loadCoupons();
           } else {
             const error = await response.json();
-            alert(error.message);
+            $('#errorMessage').text(error.message).show();
           }
         } catch (error) {
           console.error(error);

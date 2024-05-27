@@ -5,7 +5,7 @@ const session = require('express-session');
 const multer = require('multer')
 //const productMulter=require('../multer/product')
 const { uploads, resizeImage } = require('../multer/product')
-
+const adminAuth = require('../midddlewares/adminAuth')
 
 
 // const storage = multer.diskStorage({
@@ -40,6 +40,7 @@ const {
   editProduct,
   updateProduct,
   deleteProduct,
+  imageDeleteUpdate,
 
 } = require('../controllers/productController')
 
@@ -54,7 +55,8 @@ const {
   updateCategory,
   deleteCategory
 
-} = require('../controllers/categoryController')
+} = require('../controllers/categoryController');
+
 
 
 router.use(session(
@@ -65,8 +67,10 @@ router.use(session(
   }))
 
 router.get('/login', loadLogin);
+
 router.get('/dashboard', loadDashboard);
 router.post('/login', adminDashboard);
+router.use(adminAuth); 
 router.get('/add-user', loadAddUser)
 router.post('/add-user', addUser)
 router.get('/usersList', getCustomers);
@@ -100,6 +104,11 @@ router.post('/category-add', categoryAdd)
 router.get('/edit-category/:id', editCategory)
 router.post('/edit-category/:id', updateCategory)
 router.get('/:id', deleteCategory)
+
+router.post('/delete-product-image/:id',imageDeleteUpdate)
+
+
+
 
 
 

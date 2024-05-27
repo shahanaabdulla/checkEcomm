@@ -59,7 +59,13 @@
             </div>
             <div class="detail-box">
                 <h5>{{this.name}}</h5>
-                <h6> ₹ {{this.price}}</h6>
+                <h6>  {{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}</h6>
                 </div>
                 <div>
                     {{this.description}}

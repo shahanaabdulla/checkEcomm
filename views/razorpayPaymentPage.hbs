@@ -7,49 +7,104 @@
   <title>Razorpay Payment</title>
   <!-- Include Razorpay SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Custom CSS Styles -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+
+    .payment-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-container h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #F37254;
+    }
+
+    .payment-container p {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .payment-container .btn-pay {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #F37254;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .payment-container .btn-pay:hover {
+      background-color: #d86044;
+    }
+
+    .form-hidden {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-  <h2>Razorpay Payment Page</h2>
-  <p>Complete your payment securely with Razorpay:</p>
-  
-  <!-- Display the payment amount -->
-  <p>Amount: {{totalPrice}} {{razorpayOrder.currency}}</p>
+  <div class="payment-container">
+    <h2>Razorpay Payment Page</h2>
+    <p>Complete your payment securely with Razorpay:</p>
+    <p>Amount: ₹{{finalTotal}} {{razorpayOrder.currency}}</p>
+    <!-- Button to trigger Razorpay payment -->
+    <button id="rzp-button" class="btn-pay">Pay Now</button>
+    <!-- Form to submit payment -->
+    <form id="razorpayForm" class="form-hidden" action="/razorpay/success" method="POST">
+      <input type="hidden" name="orderId" value="{{razorpayOrder.id}}">
+    </form>
+  </div>
 
-  <!-- Form to submit payment -->
-  <form id="razorpayForm" action="/razorpay/success" method="POST">
-    <input type="hidden" name="orderId" value="{{razorpayOrder.id}}">
-    <script>
-      var options = {
-        "key": "{{razorpayOrder.key}}",
-        "amount": "{{razorpayOrder.amount}}", // Ensure this is in the smallest currency unit (e.g., paisa for INR)
-        "currency": "{{razorpayOrder.currency}}",
-        "name": "Yoobuy",
-        "description": "Purchase Description",
-        "order_id": "{{razorpayOrder.id}}",
-        "handler": function(response) {
-          // Handle successful payment
-          console.log(response);
-          document.getElementById('razorpayForm').submit(); 
-           window.location.href = "/razorpay/success";// Submit the form to backend for further processing
-        },
-        "prefill": {
-          "name": "{{user.name}}",
-          "email": "{{user.email}}",
-          "contact": "{{user.mobile}}"
-        },
-        "notes": {
-          "address": "{{shippingAddress}}"
-        },
-        "theme": {
-          "color": "#F37254"
-        }
-      };
-      var rzp = new Razorpay(options);
+  <script>
+    var options = {
+      "key": "{{razorpayOrder.key}}",
+      "amount": "{{razorpayOrder.amount}}", // Ensure this is in the smallest currency unit (e.g., paisa for INR)
+      "currency": "{{razorpayOrder.currency}}",
+      "name": "Yoobuy",
+      "description": "Purchase Description",
+      "order_id": "{{razorpayOrder.id}}",
+      "handler": function(response) {
+        // Handle successful payment
+        console.log(response);
+        document.getElementById('razorpayForm').submit(); 
+        window.location.href = "/razorpay/success";// Submit the form to backend for further processing
+      },
+      "prefill": {
+        "name": "{{user.name}}",
+        "email": "{{user.email}}",
+        "contact": "{{user.mobile}}"
+      },
+      "notes": {
+        "address": "{{shippingAddress}}"
+      },
+      "theme": {
+        "color": "#F37254"
+      }
+    };
+    var rzp = new Razorpay(options);
+    
+    document.getElementById('rzp-button').onclick = function(e){
       rzp.open();
-    </script>
-  </form>
-
+      e.preventDefault();
+    }
+  </script>
 </body>
 
 </html>

@@ -19,35 +19,7 @@
                </h2>
             </div>
             <div class="row">
-                {{!-- {{#each products}}
-               <div class="col-sm-6 col-md-4 col-lg-3">
-                  <div class="box">
-                     <div class="option_container">
-                        <div class="options">
-                           <a href="" class="option1">
-                          Add to Cart
-                           </a>
-                           <a href="" class="option2">
-                           Buy Now
-                           </a>
-                        </div>
-                     </div>
-                     <div class="img-box">
-                         <a href="">
-                    <img src="/productImages/{{this.image}}" alt="{{this.name}}">
-                </a>
-                     </div>
-                     <div class="detail-box">
-                        <h5>
-                           {{this.name}}
-                        </h5>
-                        <h6>
-                          {{this.price}}
-                        </h6>
-                     </div>
-                  </div>
-               </div>
-               {{/each}} --}}
+             
 
                {{#each products}}
     <div class="col-sm-6 col-md-4 col-lg-3">
@@ -59,7 +31,13 @@
             </div>
             <div class="detail-box">
                 <h5>{{this.name}}</h5>
-                <h6> ₹ {{this.price}}</h6>
+                <h6> ₹ {{#if this.onOffer}}
+                        <span class="text-decoration-line-through">₹{{this.price}}</span>
+                        <br>
+                        ₹{{this.offerPrice}}
+                    {{else}}
+                        ₹{{this.price}}
+                    {{/if}}</h6>
                 </div>
                 <div>
                     {{this.description}}

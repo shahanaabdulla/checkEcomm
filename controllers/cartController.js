@@ -3,7 +3,7 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const User=require('../models/userModel')
 const Address=require('../models/addressModel')
-
+const Offer= require('../models/offerModel')
 const cartLoad = async (req, res) => {
   try {
     const userId = req.session.user_id; // Assuming user ID is stored in session
@@ -22,48 +22,51 @@ const cartLoad = async (req, res) => {
 
 // Controller method to add a product to the cart
 const addToCart = async (req, res) => {
-    const { productId, quantity } = req.body; // Get product ID and quantity from request body
-    const userId = req.session.user_id; // Assuming user ID is stored in session
+  const { productId, quantity } = req.body; // Get product ID and quantity from request body
+  const userId = req.session.user_id; // Assuming user ID is stored in session
   
-    try {
+  try {
       // Check if product exists
       const product = await Product.findById(productId);
-    
+      
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+          return res.status(404).json({ message: "Product not found" });
       }
-  
+      
+      // Check if product is part of an offer
+      const offer = await Offer.findOne({ product: productId });
+      const price = offer ? offer.discountPrice : product.price;
+      
       // Check if cart exists for the user
       let cart = await Cart.findOne({ user_id: userId });
-  
+      
       // If cart doesn't exist, create a new one
       if (!cart) {
-        cart = new Cart({ user_id: userId });
+          cart = new Cart({ user_id: userId });
       }
-  
+      
       // Check if product already exists in the cart
       const existingItem = cart.products.find(item => item.product.equals(productId));
-  
+      
       if (existingItem) {
-        existingItem.quantity += parseInt(quantity);
-        existingItem.totalPrice += quantity * product.price; // Update total price
-    } else {
-        cart.products.push({ product: productId, quantity });
-        cart.totalPrice += quantity * product.price; // Update total price
-    }
-  
+          existingItem.quantity += parseInt(quantity);
+          existingItem.totalPrice += quantity * price; // Update total price
+      } else {
+          cart.products.push({ product: productId, quantity });
+          cart.totalPrice += quantity * price; // Update total price
+      }
+      
       // Save the updated cart
       await cart.save();
       cart = await Cart.findOne({ user_id: userId }).populate('products.product');
       
-      
-      // res.render('cart', { cart,product})
-      res.redirect('/cart')
-    } catch (error) {
+      res.redirect('/cart');
+  } catch (error) {
       console.error(error.message);
       res.status(500).json({ message: "An error occurred" });
-    }
-  };
+  }
+};
+
 
 
   const getCartCount=async (req, res) => {
@@ -142,6 +145,8 @@ const removeFromCart = async (req, res) => {
     }
 };
 
+
+
 const checkOutLoad = async (req, res) => {
   try {
     const userId = req.session.user_id; // Assuming user ID is stored in session
@@ -149,18 +154,29 @@ const checkOutLoad = async (req, res) => {
     const cart = await Cart.findOne({ user_id: userId }).populate('products.product');
     // Retrieve the addresses associated with the user
     const addresses = await Address.find({ user_id: userId });
+
     if (!cart) {
       // Handle case where cart is not found
       return res.status(404).send('Cart not found');
     }
 
-    // Pass the cart and addresses data to the checkoutPage template for rendering
-    res.render('checkoutPage', { cart, addresses });
+    // Calculate the offer discount
+    let totalOfferDiscount = 0;
+    cart.products.forEach(item => {
+      if (item.product.onOffer) {
+        totalOfferDiscount += (item.product.price - item.product.offerPrice) * item.quantity;
+      }
+    });
+
+    // Pass the cart, addresses, and totalOfferDiscount data to the checkoutPage template for rendering
+    res.render('checkoutPage', { cart, addresses, totalOfferDiscount });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Internal Server Error');
   }
 };
+
+
 
 const editAddressCheckout= async (req, res) => {
   try {

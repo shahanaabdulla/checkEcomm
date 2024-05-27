@@ -1,0 +1,206 @@
+<!-- offers.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Management</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Offer Management</h1>
+        <form id="createOfferForm" class="needs-validation" novalidate>
+            <input type="hidden" id="offerId">
+            <div class="form-group">
+                <label for="name">Offer Name</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="discountPercentage">Discount Percentage</label>
+                <input type="number" class="form-control" id="discountPercentage" required>
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" class="form-control" id="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" class="form-control" id="endDate" required>
+            </div>
+            <div class="form-group">
+                    <label for="product">Product:</label>
+                    <select name="product" id="product" class="form-control" multiple required>
+                        <option value="">Select product</option>
+                        {{#each products}}
+                        <option value="{{_id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+                    <div class="error" id="product-error"></div>
+                </div>
+            <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select category</option>
+                        {{#each categories}}
+                        <option value="{{_id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+                    <div class="error" id="category-error"></div>
+                </div>
+            <button type="submit" class="btn btn-primary">Create Offer</button>
+        </form>
+        <table class="table mt-4">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Discount</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="offerList">
+        {{#each offers}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.discountPercentage}}</td>
+                <td>{{formatDate this.startDate}}</td>
+                <td>{{formatDate this.endDate}}</td>
+                <td>
+                    {{#each this.product}}
+                        {{this.name}}{{#unless @last}}, {{/unless}}
+                    {{/each}}
+                </td>
+                <td>{{this.category.name}}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editOffer('{{this._id}}', '{{this.name}}', '{{this.discountPercentage}}', '{{this.startDate}}', '{{this.endDate}}', '{{#each this.product}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}}', '{{this.category.name}}')">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteOffer('{{this._id}}')">Delete</button>
+                </td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const loadOptions = async (url, elementId) => {
+                try {
+                    const response = await fetch(url);
+                    const options = await response.json();
+                    $(elementId).empty();
+                    options.forEach(option => {
+                        $(elementId).append(`<option value="${option._id}">${option.name}</option>`);
+                    });
+                } catch (error) {
+                    console.error(`Error loading options from ${url}:`, error);
+                }
+            };
+
+            const loadOffers = async () => {
+                try {
+                    const response = await fetch('/offer');
+                    const offers = await response.json();
+                    $('#offerList').empty();
+                    offers.forEach(offer => {
+                        $('#offerList').append(`
+                            <tr>
+                                <td>${offer.name}</td>
+                                <td>${offer.discountPercentage}</td>
+                                <td>${new Date(offer.startDate).toLocaleDateString()}</td>
+                                <td>${new Date(offer.endDate).toLocaleDateString()}</td>
+                                <td>${offer.product.name}</td>
+                                <td>${offer.category.name}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editOffer('${offer._id}', '${offer.name}', '${offer.discountPercentage}', '${offer.startDate}', '${offer.endDate}', '${offer.product._id}', '${offer.category._id}')">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteOffer('${offer._id}')">Delete</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+            loadOptions('/products', '#product');
+            loadOptions('/categories', '#category');
+            loadOffers();
+
+            $('#createOfferForm').submit(async function(event) {
+                event.preventDefault();
+
+                if (!this.checkValidity()) {
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                const offerId = $('#offerId').val();
+                const url = offerId ? `/offer/update/${offerId}` : '/offer/create';
+                const method = offerId ? 'PUT' : 'POST';
+
+                const formData = {
+                    name: $('#name').val(),
+                    discountPercentage: $('#discountPercentage').val(),
+                    startDate: $('#startDate').val(),
+                    endDate: $('#endDate').val(),
+                    product: $('#product').val(),
+                    category: $('#category').val()
+                };
+
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    if (response.ok) {
+                        loadOffers();
+                        this.reset();
+                        $('#offerId').val('');
+                        $(this).removeClass('was-validated');
+                    } else {
+                        const error = await response.json();
+                        $('#errorMessage').text(error.message).show();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+
+            window.editOffer = (id, name, discountPercentage, startDate, endDate, productId, categoryId) => {
+                $('#offerId').val(id);
+                $('#name').val(name);
+                $('#discountPercentage').val(discountPercentage);
+                $('#startDate').val(new Date(startDate).toISOString().substr(0, 10));
+                $('#endDate').val(new Date(endDate).toISOString().substr(0, 10));
+                $('#product').val(productId);
+                $('#category').val(categoryId);
+            };
+
+            window.deleteOffer = async (id) => {
+                try {
+                    const response = await fetch(`/offer/delete/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        loadOffers();
+                    } else {
+                        const error = await response.json();
+                        $('#errorMessage').text(error.message).show();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+        });
+    </script>
+</body>
+</html>

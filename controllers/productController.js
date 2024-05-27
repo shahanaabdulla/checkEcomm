@@ -109,11 +109,19 @@ const addProduct = async (req, res, next) => {
     try {
       // Extract data from the request body
       const { name, description, category, size, price, stock, isFeatured } = req.body;
+      const product = await Product.findById(req.params.id).lean();
+      if (!product) {
+        return res.status(404).send('Product not found');
+      }
+  
       const foundCategory = await Category.findOne({ name: category }).lean();
       // Get the main image filename
       // const mainImage = req.files['image'][0].filename;
-      const imageArray = req.files['images'].map(file => file.filename);
+      const newImages = req.files['images'] ? req.files['images'].map(file => file.filename) : [];
+      let imageArray = product.images.concat(newImages);
+     
       const croppedImageData = req.body.croppedImage;
+    
   
       // Create the update object
       const updateObject = {
@@ -359,71 +367,73 @@ const sortFun=(products,sortby)=>{
 
 
 // Define a route to handle sorting requests
-const sortProducts= async (req, res) => {
+const sortProducts = async (req, res) => {
   const sortBy = req.params.criteria; // Extract the sorting criteria from the route parameter
   try {
-      // Fetch products from the database
-      let products = await Product.find({ isDeleted: false }).lean(); // Assuming you're using Mongoose and want plain JavaScript objects
+    // Fetch products from the database
+    let products = await Product.find({ isDeleted: false }).lean(); // Assuming you're using Mongoose and want plain JavaScript objects
 
-      // Sort the products based on the criteria
-      switch (sortBy) {
-          case 'popularity':
-              // Sort products by popularity
-              // Implement your sorting logic here
-              break;
-          case 'priceLowToHigh':
-              // Sort products by price low to high
-              products.sort((a, b) => a.price - b.price);
-              break;
-          case 'priceHighToLow':
-              // Sort products by price high to low
-              products.sort((a, b) => b.price - a.price);
-              break;
-          case 'averageRatings':
-              // Sort products by average ratings
-              // Implement your sorting logic here
-              break;
-              case 'featured':
-    // Sort products by isFeatured field, showing featured products first
-    products.sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) {
+    // Function to get the effective price considering the offer price
+    const getEffectivePrice = (product) => {
+      return product.onOffer ? product.offerPrice : product.price;
+    };
+
+    // Sort the products based on the criteria
+    switch (sortBy) {
+      case 'popularity':
+        // Sort products by popularity
+        // Implement your sorting logic here
+        break;
+      case 'priceLowToHigh':
+        // Sort products by price low to high
+        products.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+        break;
+      case 'priceHighToLow':
+        // Sort products by price high to low
+        products.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+        break;
+      case 'averageRatings':
+        // Sort products by average ratings
+        // Implement your sorting logic here
+        break;
+      case 'featured':
+        // Sort products by isFeatured field, showing featured products first
+        products.sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) {
             return -1; // a is featured, b is not, so a comes first
-        } else if (!a.isFeatured && b.isFeatured) {
+          } else if (!a.isFeatured && b.isFeatured) {
             return 1; // b is featured, a is not, so b comes first
-        } else {
+          } else {
             return 0; // both are featured or not featured, maintain the existing order
-        }
-    });
-    break;
-          
-         
-              case 'aToZ':
-                // Sort products by name A to Z
-                products.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'zToA':
-                // Sort products by name Z to A
-                products.sort((a, b) => b.name.localeCompare(a.name));
-                break;
-                case 'newArrivals':
-    // Sort products by creation date in descending order to show the newest arrivals first
-    products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    break;
+          }
+        });
+        break;
+      case 'aToZ':
+        // Sort products by name A to Z
+        products.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'zToA':
+        // Sort products by name Z to A
+        products.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'newArrivals':
+        // Sort products by creation date in descending order to show the newest arrivals first
+        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      default:
+        // If the provided sorting criteria is invalid, default to sorting by popularity
+        // Implement your default sorting logic here
+        break;
+    }
 
-                default:
-                  // If the provided sorting criteria is invalid, default to sorting by popularity
-                  // Implement your default sorting logic here
-                  break;
-
-      }
-
-      // Render the products page with the sorted products
-      res.render('products', { products });
+    // Render the products page with the sorted products
+    res.render('products', { products });
   } catch (err) {
-      console.error(err);
-      res.status(500).send('Internal Server Error');
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
 };
+
 
 
 // Backend route for handling search requests
@@ -431,7 +441,9 @@ const searchProduct= async (req, res) => {
   try {
       const query = req.query.q; // Assuming the search query parameter is 'q'
       const sortBy = req.query.sortBy
-      // Perform a case-insensitive search on product names and descriptions
+      const getEffectivePrice = (product) => {
+        return product.onOffer ? product.offerPrice : product.price;
+      };
       const products = await Product.find({
           $or: [
               { name: { $regex: query, $options: 'i' } },
@@ -442,54 +454,50 @@ const searchProduct= async (req, res) => {
       if (sortBy) {
         switch (sortBy) {
           case 'popularity':
-              // Sort products by popularity
-              // Implement your sorting logic here
-              break;
+            // Sort products by popularity
+            // Implement your sorting logic here
+            break;
           case 'priceLowToHigh':
-              // Sort products by price low to high
-              products.sort((a, b) => a.price - b.price);
-              break;
+            // Sort products by price low to high
+            products.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+            break;
           case 'priceHighToLow':
-              // Sort products by price high to low
-              products.sort((a, b) => b.price - a.price);
-              break;
+            // Sort products by price high to low
+            products.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+            break;
           case 'averageRatings':
-              // Sort products by average ratings
-              // Implement your sorting logic here
-              break;
-              case 'featured':
-    // Sort products by isFeatured field, showing featured products first
-    products.sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) {
-            return -1; // a is featured, b is not, so a comes first
-        } else if (!a.isFeatured && b.isFeatured) {
-            return 1; // b is featured, a is not, so b comes first
-        } else {
-            return 0; // both are featured or not featured, maintain the existing order
+            // Sort products by average ratings
+            // Implement your sorting logic here
+            break;
+          case 'featured':
+            // Sort products by isFeatured field, showing featured products first
+            products.sort((a, b) => {
+              if (a.isFeatured && !b.isFeatured) {
+                return -1; // a is featured, b is not, so a comes first
+              } else if (!a.isFeatured && b.isFeatured) {
+                return 1; // b is featured, a is not, so b comes first
+              } else {
+                return 0; // both are featured or not featured, maintain the existing order
+              }
+            });
+            break;
+          case 'aToZ':
+            // Sort products by name A to Z
+            products.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'zToA':
+            // Sort products by name Z to A
+            products.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          case 'newArrivals':
+            // Sort products by creation date in descending order to show the newest arrivals first
+            products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            break;
+          default:
+            // If the provided sorting criteria is invalid, default to sorting by popularity
+            // Implement your default sorting logic here
+            break;
         }
-    });
-    break;
-          
-         
-              case 'aToZ':
-                // Sort products by name A to Z
-                products.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'zToA':
-                // Sort products by name Z to A
-                products.sort((a, b) => b.name.localeCompare(a.name));
-                break;
-                case 'newArrivals':
-    // Sort products by creation date in descending order to show the newest arrivals first
-    products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    break;
-
-                default:
-                  // If the provided sorting criteria is invalid, default to sorting by popularity
-                  // Implement your default sorting logic here
-                  break;
-
-      }
 
     }
      
@@ -523,6 +531,30 @@ const filterProducts= async (req, res) => {
   }
 };
 
+const imageDeleteUpdate= async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { filename } = req.body;
+
+    // Find the product by ID
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Remove the image from the images array
+    product.images = product.images.filter(image => image !== filename);
+
+    // Save the updated product
+    await product.save();
+
+    res.json({ message: 'Image removed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 
 
@@ -542,6 +574,7 @@ module.exports={
   getProductsUndermenCategory ,
   sortProducts,
   searchProduct,
-  filterProducts
+  filterProducts,
+  imageDeleteUpdate
   
 }

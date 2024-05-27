@@ -7,7 +7,7 @@ const Order=require('../models/orderModel')
 const randomstring=require('randomstring')
 const PasswordReset = require('../models/passwordReset');
 const Product=require('../models/productModel')
-
+const Offer = require('../models/offerModel');
 const { isAuth, isAccess,isAuthenticated } = require("../midddlewares/auth");
 
 
@@ -63,8 +63,9 @@ const transporter= nodemailer.createTransport({
 
 const homeLoad= async(req,res)=>{
     try{
+        const offers = await Offer.find().populate('product').populate('category');
         const productData = await Product.find();
-       res.render('index.hbs',{product:productData})
+       res.render('index.hbs',{product:productData,offers})
     }catch(error){
        console.log(error.message)
     }

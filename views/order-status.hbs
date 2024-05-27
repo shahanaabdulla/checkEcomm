@@ -43,7 +43,7 @@
             margin-bottom: 20px;
         }
         .order-details {
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
             background-color: #fff;
             padding: 20px;
@@ -53,6 +53,21 @@
         }
         .order-details h2 {
             margin-bottom: 10px;
+        }
+        .product-box {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .product-box img {
+            width: 60px;
+            height: auto;
+            margin-right: 10px;
+        }
+        .product-details {
+            flex-grow: 1;
         }
         p {
             margin: 5px 0;
@@ -74,11 +89,20 @@
         .return-button:hover {
             background-color: #cc0000;
         }
+        .message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-     <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-success">{{message}}</p>
     <h1>Order Status</h1>
+
+    {{#if message}}
+    <div class="message">{{message}}</div>
+    {{/if}}
 
     <div class="order-details">
         <h2>Order Details</h2>
@@ -88,6 +112,18 @@
         <p><strong>Shipping Address:</strong> {{order.shippingAddress}}</p>
         <p><strong>Payment Method:</strong> {{order.paymentMethod}}</p>
         <p><strong>Created At:</strong> {{order.createdAt}}</p>
+
+        <h2>Products</h2>
+        {{#each order.items}}
+        <div class="product-box">
+            <img src="{{this.product.image}}" alt="{{this.product.name}}">
+            <div class="product-details">
+                <p><strong>Product:</strong> {{this.product.name}}</p>
+                <p><strong>Quantity:</strong> {{this.quantity}}</p>
+                <p><strong>Price:</strong> ₹{{this.product.price}}</p>
+            </div>
+        </div>
+        {{/each}}
     </div>
 
     <div class="status-container">
@@ -117,7 +153,6 @@
         </div>
     </div>
 
-    <!-- Placeholder for the return button -->
     <div class="return-button-container" id="returnButtonContainer"></div>
 
     <script>
@@ -131,18 +166,16 @@
             }
         });
 
-        // Add the return button if the order status is "Delivered"
         if (currentStatus === "Delivered") {
-        const returnButtonContainer = document.getElementById('returnButtonContainer');
-        const returnButton = document.createElement('button');
-        returnButton.innerText = 'Return Product';
-        returnButton.classList.add('return-button');
-        returnButton.addEventListener('click', () => {
-            window.location.href = `/return-form?orderId={{order.orderID}}`;
-        });
-        returnButtonContainer.appendChild(returnButton);
-    }
+            const returnButtonContainer = document.getElementById('returnButtonContainer');
+            const returnButton = document.createElement('button');
+            returnButton.innerText = 'Return Product';
+            returnButton.classList.add('return-button');
+            returnButton.addEventListener('click', () => {
+                window.location.href = `/return-form?orderId={{order.orderID}}`;
+            });
+            returnButtonContainer.appendChild(returnButton);
+        }
     </script>
-
 </body>
 </html>

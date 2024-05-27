@@ -165,20 +165,21 @@
                   </div>
               
 
-                 <div class="d-flex flex-row align-items-center mb-4">
+              <div class="d-flex flex-row align-items-center mb-4">
   <div class="form-outline flex-fill mb-0">
     {{#if this.images}}
       {{#each this.images}}
-        <div class="image-preview" style="display: inline-block; margin-right: 10px;">
+        <div class="image-preview" style="display: inline-block; margin-right: 10px; position: relative;">
           <img src="/productImages/{{this}}" alt="Selected Image" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
-    
+         <button class="delete-image" data-filename="{{this}}" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" type="button">&times;</button>
+
         </div>
       {{/each}}
     {{/if}}
     <input type="file" class="form-control" name="images" accept="image/*" multiple onchange="previewImages(event)">
+    
   </div>
 </div>
-
 
 
                    
@@ -241,7 +242,7 @@
                       Update Product
                     </button>
                   </div> --}}
-
+                   <input type="hidden" id="cropped-image" name="croppedImage">
                   <input type="hidden" name="id" value="{{this._id}}">
                 </form>
 {{/each}} 
@@ -354,4 +355,40 @@
                 console.error('There was a problem with the request:', error);
             });
         });
+
+      document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.delete-image').forEach(function (button) {
+    button.addEventListener('click', function (event) {
+      event.preventDefault();  // Prevent default action
+      event.stopPropagation(); // Stop event propagation
+
+      const filename = this.getAttribute('data-filename');
+      const productId = document.querySelector('input[name="id"]').value;
+      const imagePreview = this.parentElement;
+
+      // Make an AJAX request to delete the image
+      fetch(`/admin/delete-product-image/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filename: filename })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Remove the image preview element from the DOM
+        imagePreview.remove();
+      })
+      .catch(error => {
+        console.error('There was a problem with the request:', error);
+      });
+    });
+  });
+});
+
     </script>

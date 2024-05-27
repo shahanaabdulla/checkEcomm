@@ -40,13 +40,22 @@
     </div>
     <div class="">
        <!-- Inside the loop where you display cart products -->
-<div class="col-lg col-sm-6">
+
+  {{#if this.product.onOffer}}
     <div class="">
+        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.offerPrice this.quantity}}</text>
+    </div>
+
+
+    <small class="text-muted text-nowrap"> ₹ {{this.product.offerPrice}} / per item </small>
+{{else}}
+ <div class="">
         <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.price this.quantity}}</text>
     </div>
-</div>
+    <small class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </small>
 
-        <small class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </small>
+{{/if}}
+
     </div>
 </div>
 
@@ -271,13 +280,19 @@ async function updateCart(productId, quantity) {
     }
   }
 
-  function updateTotalPrice() {
-    const totalElements = document.querySelectorAll('[id^="totalprice"]');
+ 
+function calculateTotalPrice(products) {
     let totalPrice = 0;
-    totalElements.forEach((element) => {
-        totalPrice += parseFloat(element.textContent.replace('Total Price: ₹ ', ''));
+
+    products.forEach(product => {
+        if (product.onOffer) {
+            totalPrice += product.offerPrice * product.quantity;
+        } else {
+            totalPrice += product.price * product.quantity;
+        }
     });
-    document.getElementById('totalPrice').textContent = `Total: ₹ ${totalPrice.toFixed(2)}`;
+
+    return totalPrice.toFixed(2); // Ensure the total price is formatted with two decimal places
 }
 
 

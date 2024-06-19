@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -6,7 +8,7 @@ const logger = require('morgan');
 const flash = require('express-flash');
 const session = require('express-session');
 const mongoose = require('mongoose');
-require('dotenv').config();
+
 const { isAuthenticated } = require('./midddlewares/auth');
 // Routes
 const indexRouter = require('./routes/admin');

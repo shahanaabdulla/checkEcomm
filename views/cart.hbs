@@ -9,8 +9,9 @@
         <div class="card border shadow-0">
           <div class="m-4">
             <h4 class="card-title mb-4">Your shopping cart</h4>
-            
-          
+        
+         
+
             {{#if cart.products.length}} <!-- Check if cart has any products -->
               {{#each cart.products}}
               <div class="row gy-3 mb-4">
@@ -20,6 +21,7 @@
                       <img src="{{this.product.image}}" class="border rounded me-3" style="width: 96px; height: 96px;" />
                       <div class="">
                         <a href="#" class="nav-link">{{this.product.name}}</a>
+                        
                         <p class="text-muted">{{this.product.description}}</p>
                       </div>
                     </div>
@@ -28,33 +30,76 @@
                <div class="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
     <div class="mr-3">
         <div class="input-group mb-3" style="width: 170px;">
-            <button class="btn btn-white border border-secondary px-3" type="button" onclick="decreaseQuantity('{{this.product._id}}', '{{this.product.price}}')"> <!-- Pass product ID and price as parameters -->
-    <i class="fas fa-minus"></i>
+       
+   <button class="btn btn-white border border-secondary px-3" type="button" onclick="decreaseQuantity('{{this.product._id}}', '{{this.quantity}}')">
+  <i class="fas fa-minus"></i>
 </button>
-            <input id="quantityInput{{this.product._id}}" type="number" class="form-control text-center border border-secondary" value="{{this.quantity}}" readonly>
-            <button class="btn btn-white border border-secondary px-3" type="button" onclick="increaseQuantity('{{this.product._id}}','{{this.product.stock}}','{{this.product.price}}')">
-                <i class="fas fa-plus"></i>
-            </button>
+
+<input id="quantityInput{{this.product._id}}" data-product-id="{{this.product._id}}" data-stock="{{this.product.stock}}" type="number" class="form-control text-center border border-secondary" value="{{this.quantity}}" readonly>
+
+<button class="btn btn-white border border-secondary px-3" type="button" onclick="increaseQuantity('{{this.product._id}}')">
+  <i class="fas fa-plus"></i>
+</button>
+ <small id="stockError{{this.product._id}}" class="text-danger" style="display: none;"></small>
+
+
         </div>
-        <small id="quantityErrorMessage{{this.product._id}}" class="text-danger d-none">Out of stock</small>
+       
     </div>
     <div class="">
        <!-- Inside the loop where you display cart products -->
 
-  {{#if this.product.onOffer}}
+{{#if this.product.onOffer}}
     <div class="">
-        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.offerPrice this.quantity}}</text>
+        {{#if this.product.offerPrice}}
+            {{#if this.product.categoryOfferPrice}}
+                {{#lt this.product.offerPrice this.product.categoryOfferPrice}}
+                    <div>
+                        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.offerPrice this.quantity}}</text>
+                        <div class="text-muted text-nowrap"> ₹ {{this.product.offerPrice}} / per item </div>
+                    </div>
+                {{else}}
+                    <div>
+                        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.categoryOfferPrice this.quantity}}</text>
+                        <div class="text-muted text-nowrap"> ₹ {{this.product.categoryOfferPrice}} / per item </div>
+                    </div>
+                {{/lt}}
+            {{else}}
+                <div>
+                    <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.offerPrice this.quantity}}</text>
+                    <div class="text-muted text-nowrap"> ₹ {{this.product.offerPrice}} / per item </div>
+                </div>
+            {{/if}}
+        {{else}}
+            {{#if this.product.categoryOfferPrice}}
+                <div>
+                    <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.categoryOfferPrice this.quantity}}</text>
+                    <div class="text-muted text-nowrap"> ₹ {{this.product.categoryOfferPrice}} / per item </div>
+                </div>
+            {{else}}
+                <div>
+                    <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.price this.quantity}}</text>
+                    <div class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </div>
+                </div>
+            {{/if}}
+        {{/if}}
     </div>
-
-
-    <small class="text-muted text-nowrap"> ₹ {{this.product.offerPrice}} / per item </small>
 {{else}}
- <div class="">
-        <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.price this.quantity}}</text>
+    <div class="">
+        {{#if this.product.categoryOfferPrice}}
+            <div>
+                <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.categoryOfferPrice this.quantity}}</text>
+                <div class="text-muted text-nowrap"> ₹ {{this.product.categoryOfferPrice}} / per item </div>
+            </div>
+        {{else}}
+            <div>
+                <text id="totalprice{{this.product._id}}" class="h6">Total Price: ₹ {{calculatePrice this.product.price this.quantity}}</text>
+                <div class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </div>
+            </div>
+        {{/if}}
     </div>
-    <small class="text-muted text-nowrap"> ₹ {{this.product.price}} / per item </small>
-
 {{/if}}
+
 
     </div>
 </div>
@@ -72,9 +117,10 @@
                 <p class="text-muted">
                   Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
                 </p>
-                <div class="d-flex justify-content-between mt-4">
-                  <h5  id="totalPrice">Total:  ₹ {{calculateTotalPrice cart.products}}</h5>
-                </div>
+              <div class="d-flex justify-content-between mt-4">
+    <h5 id="totalPrice">Total:  ₹ <span id="totalPriceValue">{{calculateTotalPrice cart.products}}</span></h5>
+</div>
+
                 <button class="btn btn-primary" id="placeOrderBtn">Place Order</button>
               </div>
             {{else}}
@@ -85,6 +131,51 @@
      </div>
       <!-- cart -->
       <!-- summary -->
+       <div class="col-lg-3">
+        <div class="card mb-3 border shadow-0">
+         
+        </div>
+        <div class="card shadow-0 border">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p id="summaryTotalPrice" class="mb-2"> ₹ {{calculateTotalPrice cart.products}}</p>
+            </div>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Discount:</p>
+              <p class="mb-2 text-success">- ₹{{totalOfferDiscount}}</p>
+            </div>
+            <div class="d-flex justify-content-between">
+    <p class="mb-2">Tax:</p>
+    <p id="summaryTax" class="mb-2"> ₹ {{taxAmount}}</p>
+</div>
+
+              {{#if cart.products.length}} 
+          <div class="d-flex justify-content-between">
+    <p class="mb-2">Shipping Cost:</p>
+    <p id="summaryShippingCost" class="mb-2">+ ₹ 80.00</p> <!-- Initial value, will be updated dynamically -->
+</div>
+
+
+            <hr />
+           <div class="d-flex justify-content-between">
+                <p class="mb-2">Grand Total:</p>
+                <p id="summaryGrandTotal" class="mb-2 fw-bold"> ₹ 0.00</p>
+            </div>
+           {{else}}
+             <div class="d-flex justify-content-between">
+              <p class="mb-2">Shipping Cost:</p>
+              <p class="mb-2">+ ₹ 0.00</p>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p class="mb-2 fw-bold"> ₹ 0.00</p>
+            </div>
+           {{/if}}
+          </div>
+        </div>
+      </div>
       <div class="col-lg-3">
         <!-- Your summary content here -->
       </div>
@@ -184,19 +275,38 @@
     </div>
   </div>
 </section>
-<!-- Recommended -->
 
-<!-- Footer -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 <script>
+
+   const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+    // Add a click event listener to the button
+    placeOrderBtn.addEventListener('click', function() {
+        // Redirect the user to the checkout page
+        window.location.href = '/checkout';
+    });
+
   const removeFromCart = async (productId) => {
     try {
         // Ask for confirmation
-        const confirmed = confirm('Are you sure you want to remove this product from the cart?');
-        
-        if (!confirmed) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this product from the cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'No, keep it'
+        });
+
+        // Check if the user confirmed the action
+        if (!result.isConfirmed) {
             return; // Do nothing if the user cancels the confirmation
         }
 
+        // Proceed with removal if confirmed
         const response = await fetch(`/cart/${productId}`, {
             method: 'DELETE',
             headers: {
@@ -207,94 +317,199 @@
         if (!response.ok) {
             throw new Error('Failed to remove product from cart');
         }
-          window.location.href = '/cart';
-        // Handle success response here
-        // For example, reload the page or update the UI
+
+        // Reload the page to reflect the changes
+        window.location.href = '/cart';
     } catch (error) {
         console.error('Error:', error);
         // Handle error here
     }
 };
 
-</script>
-<script>
-   // Get the button element by its ID
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const updateTotalPrice = async (productId, quantity) => {
+        try {
+            // Make a request to calculate the new total price based on the updated quantity
+            const response = await fetch(`/calculateTotalPrice/${productId}?quantity=${quantity}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-    // Add a click event listener to the button
-    placeOrderBtn.addEventListener('click', function() {
-        // Redirect the user to the checkout page
-        window.location.href = '/checkout';
-    });
+            if (!response.ok) {
+                throw new Error('Failed to calculate total price');
+            }
 
-   function decreaseQuantity(productId, price) {
-    const quantityInput = document.getElementById(`quantityInput${productId}`);
-    const totalpriceElement = document.getElementById(`totalprice${productId}`);
-    let quantity = parseInt(quantityInput.value);
-    if (quantity > 1) {
-        quantity--;
-        quantityInput.value = quantity;
-        const totalprice = price * quantity;
-        totalpriceElement.textContent = `Total Price: ₹ ${totalprice.toFixed(2)}`;
-          updateCart(productId, quantity);
-          updateTotalPrice()
-    }
-}
+            // Parse the response JSON
+            const totalPrice = await response.json();
+            
+            // Update the displayed total price
+            document.getElementById(`totalprice${productId}`).innerText = `Total Price: ₹ ${totalPrice}`;
+             updateSummaryTotalPrice();
+               updateGrandTotal();
+        } catch (error) {
+            console.error('Error:', error);
+            // Handle error here
+        }
+    };
+ window.addEventListener('DOMContentLoaded', () => {
+    updateGrandTotal();
+    restoreQuantities(); 
+    updateGrandTotal(); 
+});
 
-function increaseQuantity(productId, stock, price) {
-    const quantityInput = document.getElementById(`quantityInput${productId}`);
-    const quantityErrorMessage = document.getElementById(`quantityErrorMessage${productId}`);
-    const totalpriceElement = document.getElementById(`totalprice${productId}`);
-    let quantity = parseInt(quantityInput.value);
-    const maxQuantity = stock; // Example maximum quantity from available stock
-    if (quantity < maxQuantity) {
-        quantity++;
-        quantityInput.value = quantity;
-        const totalprice = price * quantity;
-        totalpriceElement.textContent = `Total Price: ₹ ${totalprice.toFixed(2)}`;
-          updateCart(productId, quantity);
-          updateTotalPrice()
-    } else {
-        quantityErrorMessage.classList.remove('d-none');
-        setTimeout(() => {
-            quantityErrorMessage.classList.add('d-none');
-        }, 3000); // Hide the error message after 3 seconds
-    }
-}
-
-async function updateCart(productId, quantity) {
+const updateGrandTotal =() => {
     try {
-        const response = await fetch(`/cart/${productId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ quantity }) // Send updated quantity in the request body
+        let totalPrice = 0;
+
+        // Iterate over each product in the cart
+        document.querySelectorAll('.h6[id^="totalprice"]').forEach((totalPriceElement) => {
+            // Get the total price from the current product
+            const productTotalPrice = parseFloat(totalPriceElement.innerText.replace('Total Price: ₹ ', ''));
+            
+            // Add the total price of the current product to the overall total price
+            totalPrice += productTotalPrice;
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to update cart');
-        }
+        // Calculate tax (assuming tax rate is 10%)
+        const taxRate = 0.1; // 10%
+        const taxAmount = totalPrice * taxRate;
+
+        // Calculate shipping cost (if applicable)
+        const shippingCost = totalPrice >= 1000 ? 0 : 80;
+
+        // Calculate grand total including tax and shipping cost
+        const grandTotal = totalPrice + taxAmount + shippingCost;
+
+        // Update the total price displayed in the card body
+        document.getElementById('totalPrice').innerText = ` ₹ ${totalPrice.toFixed(2)}`; // Round to 2 decimal places
+
+        // Update the total price displayed in the summary section
+        document.getElementById('summaryTotalPrice').innerText = totalPrice.toFixed(2); // Round to 2 decimal places
+        document.getElementById('summaryTax').innerText = ` ₹ ${taxAmount.toFixed(2)}`; // Display tax amount
+        document.getElementById('summaryShippingCost').innerText = `+ ₹ ${shippingCost.toFixed(2)}`; // Display shipping cost
+        document.getElementById('summaryGrandTotal').innerText = ` ₹ ${grandTotal.toFixed(2)}`; // Display grand total
     } catch (error) {
-        throw new Error('Error updating cart:', error);
+        console.error('Error:', error);
+        // Handle error here
     }
+};
+
+ const increaseQuantity = async (productId, currentQuantity) => {
+  try {
+    const inputElement = document.getElementById(`quantityInput${productId}`);
+    const errorElement = document.getElementById(`stockError${productId}`);
+    
+    if (!inputElement) {
+      console.error('Input element not found');
+      return;
+    }
+
+    const stock = parseInt(inputElement.getAttribute('data-stock'));
+    console.log(stock); // This should now output the correct stock value
+
+    let quantity = parseInt(inputElement.value);
+    if (quantity < stock) { // Check if the new quantity is within the stock limit
+      quantity++;
+      inputElement.value = quantity;
+
+      // Hide error message if it was displayed
+      errorElement.style.display = 'none';
+
+      await updateQuantity(productId, quantity);
+      updateTotalPrice(productId, quantity);
+      updateGrandTotal();
+    } else {
+      // Display error message
+      errorElement.textContent = 'Out of stock';
+      errorElement.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle error here
   }
+};
 
- 
-function calculateTotalPrice(products) {
-    let totalPrice = 0;
+const decreaseQuantity = async (productId, currentQuantity) => {
+  try {
+    const inputElement = document.getElementById(`quantityInput${productId}`);
+    const errorElement = document.getElementById(`stockError${productId}`);
+    
+    const stock = parseInt(inputElement.getAttribute('data-stock'));
+    console.log(stock); // This should now output the correct stock value
 
-    products.forEach(product => {
-        if (product.onOffer) {
-            totalPrice += product.offerPrice * product.quantity;
-        } else {
-            totalPrice += product.price * product.quantity;
-        }
+    let quantity = parseInt(inputElement.value);
+
+    if (quantity > 1) {
+      quantity -= 1;
+      inputElement.value = quantity;
+
+      // Hide error message if it was displayed
+      errorElement.style.display = 'none';
+
+      await updateQuantity(productId, quantity);
+      updateTotalPrice(productId, quantity);
+      updateGrandTotal();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle error here
+  }
+};
+
+const updateQuantity = async (productId, quantity) => {
+  try {
+    const response = await fetch('/quantityUpdate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        productId: productId,
+        quantity: quantity
+      })
     });
 
-    return totalPrice.toFixed(2); // Ensure the total price is formatted with two decimal places
-}
+    if (!response.ok) {
+      throw new Error('Failed to update quantity');
+    }
 
+    // Reload the page to reflect the changes
+    window.location.href = '/cart';
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle error here
+  }
+};
+
+ 
+
+
+
+  
+  const updateSummaryTotalPrice = () =>  {
+    try {
+        let totalPrice = 0;
+
+        // Iterate over each product in the cart
+        document.querySelectorAll('.h6[id^="totalprice"]').forEach((totalPriceElement) => {
+            // Get the total price from the current product
+            const productTotalPrice = parseFloat(totalPriceElement.innerText.replace('Total Price: ₹ ', ''));
+            
+            // Add the total price of the current product to the overall total price
+            totalPrice += productTotalPrice;
+        });
+
+        // Update the total price displayed in the card body
+        document.getElementById('totalPrice').innerText = ` ₹ ${totalPrice.toFixed(2)}`; // Round to 2 decimal places
+
+        // Update the total price displayed in the summary section
+        document.getElementById('summaryTotalPrice').innerText = totalPrice.toFixed(2); // Round to 2 decimal places
+    } catch (error) {
+        console.error('Error:', error);
+        // Handle error here
+    }
+};
 
 
 </script>

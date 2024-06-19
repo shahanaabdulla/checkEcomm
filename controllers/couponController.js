@@ -33,19 +33,23 @@ const couponCreate = async (req, res) => {
 
 
 
-const couponLoad= async(req,res)=>{
-    try{
-        const coupons = await Coupon.find();
-       res.render('./admin/coupon',{coupons,layout: './admin/admin-layout' })
-    }catch(error){
-       console.log(error.message)
-    }
+const couponLoad = async (req, res) => {
+  try {
+    const coupons = await Coupon.find();
+    res.render('./admin/coupon', { coupons, layout: './admin/admin-layout' })
+  } catch (error) {
+    console.log(error.message)
+  }
 }
 
-const couponEdit= async (req, res) => {
+const couponEdit = async (req, res) => {
   try {
     const { id } = req.params;
     const { code, discountType, discountValue, expirationDate, usageLimit } = req.body;
+    const existingCoupon = await Coupon.findOne({ code });
+    if (existingCoupon) {
+      return res.status(400).send({ message: 'Coupon already exists' });
+    }
     const updatedCoupon = await Coupon.findByIdAndUpdate(id, {
       code,
       discountType,
@@ -59,7 +63,7 @@ const couponEdit= async (req, res) => {
   }
 };
 
-const couponDelete= async (req, res) => {
+const couponDelete = async (req, res) => {
   try {
     const { id } = req.params;
     await Coupon.findByIdAndDelete(id);
@@ -70,7 +74,7 @@ const couponDelete= async (req, res) => {
 };
 
 // Example backend endpoint in Express.js
-const couponGet= async (req, res) => {
+const couponGet = async (req, res) => {
   try {
     const coupons = await Coupon.find();
     res.json(coupons);
@@ -81,10 +85,10 @@ const couponGet= async (req, res) => {
 
 
 
-module.exports={
-   couponCreate,
-   couponLoad,
-   couponEdit,
-   couponDelete,
-   couponGet
+module.exports = {
+  couponCreate,
+  couponLoad,
+  couponEdit,
+  couponDelete,
+  couponGet
 }

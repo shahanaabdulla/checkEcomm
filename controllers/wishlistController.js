@@ -6,21 +6,19 @@ const loadWishlist = async (req, res) => {
     try {
         const userId = req.session.user_id;
         const updatedWishlist = await Wishlist.find({ user: userId }).populate('product');
-        res.render('wishlist',{products:updatedWishlist})
+        res.render('wishlist', { products: updatedWishlist })
     } catch (error) {
-      console.log(error.message);
+        console.log(error.message);
     }
-  };
-
-
+};
 
 // Controller function to add a product to the wishlist
 const addToWishlist = async (req, res) => {
     try {
         const productId = req.params.productId;
         const userId = req.session.user_id;
-         console.log(productId)
-         console.log(userId)
+        console.log(productId)
+        console.log(userId)
         // Check if the user already has the product in the wishlist
         const existingWishlistItem = await Wishlist.findOne({ user: userId, product: productId });
 
@@ -75,11 +73,11 @@ const moveToCart = async (req, res) => {
         await Product.updateOne({ _id: productId }, { isWishlisted: false });
         console.log(`Moved ${wishlistItem.product.name} to cart.`);
         req.flash('success_msg', `Moved ${wishlistItem.product.name} to cart.`);
-        
+
         // Render wishlist page with updated wishlist items
         const updatedWishlist = await Wishlist.find({ user: userId }).populate('product');
         const successMsg = req.flash('success_msg');
-        res.render('wishlist', { products: updatedWishlist,successMsg });
+        res.render('wishlist', { products: updatedWishlist, successMsg });
     } catch (error) {
         console.error("Error moving item to cart:", error);
         req.flash('error_msg', 'Internal Server Error');
@@ -87,11 +85,11 @@ const moveToCart = async (req, res) => {
     }
 };
 
-const removeWishlist= async (req, res) => {
+const removeWishlist = async (req, res) => {
     const productId = req.params.productId;
 
     try {
-       
+
         const removedItem = await Wishlist.findOneAndDelete({ product: productId });
         await Product.updateOne({ _id: productId }, { isWishlisted: false });
 
@@ -109,7 +107,7 @@ const removeWishlist= async (req, res) => {
     }
 };
 
-module.exports={
+module.exports = {
     loadWishlist,
     addToWishlist,
     moveToCart,

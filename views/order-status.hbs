@@ -95,10 +95,30 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
+        .invoice-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .invoice-button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .invoice-button:hover {
+            background-color: #45a049;
+        }
     </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <h1>Order Status</h1>
+    <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-danger">{{msg}}</p>
+
+    <div id="retryButtonContainer" class="text-center mb-2"></div>
 
     {{#if message}}
     <div class="message">{{message}}</div>
@@ -108,10 +128,10 @@
         <h2>Order Details</h2>
         <p><strong>Order ID:</strong> {{order.orderID}}</p>
         <p><strong>Status:</strong> {{order.status}}</p>
-        <p><strong>Total Price:</strong> ₹{{order.totalPrice}}</p>
+        <p><strong>Total Price:</strong> ₹{{totalPrice}}</p>
         <p><strong>Shipping Address:</strong> {{order.shippingAddress}}</p>
         <p><strong>Payment Method:</strong> {{order.paymentMethod}}</p>
-        <p><strong>Created At:</strong> {{order.createdAt}}</p>
+        <p><strong>Created At:</strong> {{formatDate order.createdAt}}</p>
 
         <h2>Products</h2>
         {{#each order.items}}
@@ -120,7 +140,31 @@
             <div class="product-details">
                 <p><strong>Product:</strong> {{this.product.name}}</p>
                 <p><strong>Quantity:</strong> {{this.quantity}}</p>
-                <p><strong>Price:</strong> ₹{{this.product.price}}</p>
+                <p><strong>Price:</strong> {{#if this.product.onOffer}}
+    <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
+    {{#if this.product.offerPrice}}
+        {{#if this.product.categoryOfferPrice}}
+            {{#lt this.product.offerPrice this.product.categoryOfferPrice}}
+                ₹{{this.product.offerPrice}}
+            {{else}}
+                ₹{{this.product.categoryOfferPrice}}
+            {{/lt}}
+        {{else}}
+            ₹{{this.product.offerPrice}}
+        {{/if}}
+    {{else}}
+        {{#if this.product.product.categoryOfferPrice}}
+            ₹{{this.product.categoryOfferPrice}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if this.product.categoryOfferPrice}}
+        <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
+        ₹{{this.product.categoryOfferPrice}}
+    {{else}}
+        ₹{{this.product.price}}
+    {{/if}}
+{{/if}}</p>
             </div>
         </div>
         {{/each}}
@@ -155,6 +199,10 @@
 
     <div class="return-button-container" id="returnButtonContainer"></div>
 
+    <div class="invoice-button-container">
+        <a href="/invoice/{{order.orderID}}" class="invoice-button">Download Invoice</a>
+    </div>
+
     <script>
         const currentStatus = "{{order.status}}";
         const statusElements = document.querySelectorAll('.status');
@@ -175,6 +223,15 @@
                 window.location.href = `/return-form?orderId={{order.orderID}}`;
             });
             returnButtonContainer.appendChild(returnButton);
+        }
+
+        if (currentStatus === "Payment Pending") {
+            const retryButtonContainer = document.getElementById('retryButtonContainer');
+            const retryButton = document.createElement('a');
+           retryButton.href = `/retry-payment/{{order.orderID}}`;
+            retryButton.classList.add('btn', 'btn-primary', 'btn-lg');
+            retryButton.innerText = 'Retry Payment';
+            retryButtonContainer.appendChild(retryButton);
         }
     </script>
 </body>

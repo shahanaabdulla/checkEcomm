@@ -1,220 +1,193 @@
 const Product = require('../models/productModel');
-const Category=require('../models/categoryModel')
+const Category = require('../models/categoryModel')
 const { validationResult } = require('express-validator');
-const fs=require('fs')
-const multer=require('multer')
-const path=require('path');
+const fs = require('fs')
+const multer = require('multer')
+const path = require('path');
 const categoryModel = require('../models/categoryModel');
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 const Wishlist = require('../models/wishlistModel');
+const Offer = require('../models/offerModel')
 
 
 
-
-const productAdd=async(req,res)=>{
-    try {
-      const categories = await Category.find();
-        res.render('./admin/createProduct.hbs',{layout: './admin/admin-layout',categories})
-    } catch (error) {
-      console.log(error.message)  
-    }
+const productAdd = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.render('./admin/createProduct.hbs', { layout: './admin/admin-layout', categories })
+  } catch (error) {
+    console.log(error.message)
+  }
 }
 
 
+const getProducts = async (req, res) => {
+  try {
+    // Fetch products and populate the 'offer' field
+    const productData = await Product.find().populate('offer').lean();
 
+    // Fetch all offers
+    const offers = await Offer.find().lean();
 
- 
+    // Render the product list with offers
+    res.render('./admin/productList', { offers, products: productData, layout: './admin/admin-layout' });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
-      
-
-  const getProducts = async(req,res)=>{
-    try{
-      const productData = await Product.find();
-      
-       res.render('./admin/productList',{ products: productData,layout: './admin/admin-layout'})
-    }catch(error){
-       console.log(error.message)
-    }
-}
 const addProduct = async (req, res, next) => {
   try {
-      // Extract data from the request body
-      const { name, description, color, brand, category, size, price, stock, isFeatured } = req.body;
-      if (price <= 0 || stock < 0) {
-          return res.render('./admin/createProduct', { message: "Price and stock should be greater than 0", layout: './admin/admin-layout' });
-      }
+    // Extract data from the request body
+    const { name, description, color, brand, category, size, price, stock, isFeatured } = req.body;
+    if (price <= 0 || stock < 0) {
+      return res.render('./admin/createProduct', { message: "Price and stock should be greater than 0", layout: './admin/admin-layout' });
+    }
 
-      // Get the main image filename
-      // const mainImage = req.files['image'].filename;
+    // Get the main image filename
+    // const mainImage = req.files['image'].filename;
 
-      // Get an array of image filenames
-      const imageArray = req.files['images'].map(file => file.filename);
+    // Get an array of image filenames
+    const imageArray = req.files['images'].map(file => file.filename);
 
-      // Get the cropped image data
-      const croppedImageData = req.body.croppedImage;
+    // Get the cropped image data
+    const croppedImageData = req.body.croppedImage;
 
-      // Save the product to the database
-      const newProduct = new Product({
-          name,
-          description,
-          color,
-          brand,
-          category,
-          size,
-          price,
-          stock,
-          image: croppedImageData,
-          images: imageArray,
-          isFeatured,
-          // Add cropped image data to the product object
-         
-      });
+    // Save the product to the database
+    const newProduct = new Product({
+      name,
+      description,
+      color,
+      brand,
+      category,
+      size,
+      price,
+      stock,
+      brand,
+      image: croppedImageData,
+      images: imageArray,
+      isFeatured,
+      // Add cropped image data to the product object
 
-      const savedProduct = await newProduct.save();
+    });
 
-      console.log(savedProduct);
-      console.log("Success");
-      res.redirect('/admin/productList');
+    const savedProduct = await newProduct.save();
+
+    console.log(savedProduct);
+    console.log("Success");
+    res.redirect('/admin/productList');
 
   } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).send('Internal Server Error');
   }
 };
 
 
 
-   const editProduct = async (req, res) => {
-  
-    try {
-      const id = req.params.id;
-      const productData = await Product.find({ _id: id }).populate('category').lean();
-      const categories=await Category.find().lean()
-    
-      
-      console.log(productData);
-      if (productData) {
-        res.render("./admin/edit-product", {productData,categories,layout: './admin/admin-layout'});
-      } else {
-        res.redirect("/admin/productList");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
+const editProduct = async (req, res) => {
 
-  
-  const updateProduct = async (req, res) => {
-    try {
-      // Extract data from the request body
-      const { name, description, category, size, price, stock, isFeatured } = req.body;
-      const product = await Product.findById(req.params.id).lean();
-      if (!product) {
-        return res.status(404).send('Product not found');
-      }
-  
-      const foundCategory = await Category.findOne({ name: category }).lean();
-      // Get the main image filename
-      // const mainImage = req.files['image'][0].filename;
-      const newImages = req.files['images'] ? req.files['images'].map(file => file.filename) : [];
-      let imageArray = product.images.concat(newImages);
-     
-      const croppedImageData = req.body.croppedImage;
-    
-  
-      // Create the update object
-      const updateObject = {
-        name,
-        description,
-        size,
-        price,
-        stock,
-        category: foundCategory._id,
-        image:croppedImageData,
-        images: imageArray,
-        isFeatured
-      };
-  
-      // Conditionally add croppedImage to the update object
-      
-  
-      // Find and update the product by id
-      await Product.updateOne(
-        { _id: req.params.id },
-        { $set: updateObject }
-      );
-  
-      // Render the updated product list
-      const productData = await Product.find().lean();
-      console.log(productData);
-  
-      if (productData)
-        res.render("./admin/productList", { products: productData, layout: './admin/admin-layout' });
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).send('Internal Server Error');
-    }
-  };
-  
-
- 
-
-//   const deleteCategory= async (req, res) => {
-//     try {
-//         const category = await Category.findById(req.params.id);
-//         if (!category) {
-//             return res.status(404).json({ message: 'Category not found' });
-//         }
-//         category.isdeleted = true;
-//         await category.save();
-//         res.json({ message: 'Category soft deleted successfully' });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// };
-
-// const deleteCategory = async (req, res) => {
-//   try {
-   
-//     await Category.find({ _id: req.params.id }).lean();
-//     await Category.deleteOne({ _id: req.params.id  });
-//     Category.isdeleted = true
-//      await Category.save()
-//     const categoryData= await Category.find().lean();
-//     console.log(categoryData);
-
-//     res.render("./admin/categoryList", {category: categoryData});
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
-const deleteProduct=async(req,res)=>{
   try {
-    const productId=req.params.id
-    const product=await Product.findOneAndUpdate({_id:(productId)},{$set:{isDeleted:true}})
-    console.log(product)
-   
-    await product.save();
-    
-    const productData= await Product.find().lean();
-        console.log(productData);
-    
-        res.render("./admin/productList", {products: productData,layout: './admin/admin-layout'});
+    const id = req.params.id;
+    const productData = await Product.find({ _id: id }).populate('category').lean();
+    const categories = await Category.find().lean()
+
+
+    console.log(productData);
+    if (productData) {
+      res.render("./admin/edit-product", { productData, categories, layout: './admin/admin-layout' });
+    } else {
+      res.redirect("/admin/productList");
+    }
   } catch (error) {
-      return res.status(400).json({
-       success:false,
-       msg:error.message
-      })
-      
+    console.log(error);
+  }
+};
+
+
+
+const updateProduct = async (req, res) => {
+  try {
+    // Extract data from the request body
+    const { name, description, category, size, price, stock, isFeatured } = req.body;
+    const product = await Product.findById(req.params.id).lean();
+    if (!product) {
+      return res.status(404).send('Product not found');
+    }
+
+    const foundCategory = await Category.findOne({ name: category }).lean();
+
+    // Get the main image filename if provided
+    const mainImage = req.files['image'] ? req.files['image'][0].filename : product.image;
+
+    const newImages = req.files['images'] ? req.files['images'].map(file => file.filename) : [];
+    let imageArray = product.images.concat(newImages);
+
+    const croppedImageData = req.body.croppedImage || product.image;
+
+    // Create the update object
+    const updateObject = {
+      name,
+      description,
+      size,
+      price,
+      stock,
+      category: foundCategory._id,
+      image: croppedImageData,
+      images: imageArray,
+      isFeatured
+    };
+
+    // If the main image is not updated, retain the existing one
+    if (!req.files['image']) {
+      updateObject.image = product.image;
+    }
+
+    // Find and update the product by id
+    await Product.updateOne(
+      { _id: req.params.id },
+      { $set: updateObject }
+    );
+
+    // Render the updated product list
+    const productData = await Product.find().populate('offer').lean();
+    console.log(productData);
+
+    if (productData)
+      res.render("./admin/productList", { products: productData, layout: './admin/admin-layout' });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id
+    const product = await Product.findOneAndUpdate({ _id: (productId) }, { $set: { isDeleted: true } })
+    console.log(product)
+
+    await product.save();
+
+    const productData = await Product.find().lean();
+    console.log(productData);
+
+    res.render("./admin/productList", { products: productData, layout: './admin/admin-layout' });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      msg: error.message
+    })
+
   }
 }
 
 function generatePaginationButtons(currentPage, totalPages) {
   const buttons = [];
   for (let i = 1; i <= totalPages; i++) {
-      buttons.push(i);
+    buttons.push(i);
   }
   return buttons;
 }
@@ -223,8 +196,8 @@ function generatePaginationButtons(currentPage, totalPages) {
 
 const getAllProducts = async (req, res) => {
   try {
-    const user=req.session.user_id
-    
+    const user = req.session.user_id
+
     const currentPage = parseInt(req.query.page) || 1; // Default to page 1
     const itemsPerPage = 5; // Adjust as needed
 
@@ -237,10 +210,10 @@ const getAllProducts = async (req, res) => {
 
     // Find products with pagination and filtering
     const products = await Product.find({ isDeleted: false })
-      .skip(skip) 
-      .limit(limit); 
+      .skip(skip)
+      .limit(limit);
 
-   
+
     const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
     const paginationButtons = generatePaginationButtons(currentPage, totalPages);
     res.render('products', {
@@ -248,7 +221,7 @@ const getAllProducts = async (req, res) => {
       currentPage,
       totalPages,
       paginationButtons,
-      user 
+      user
     });
   } catch (err) {
     console.error(err);
@@ -257,50 +230,15 @@ const getAllProducts = async (req, res) => {
 };
 
 
-
-//  const getProductDetails = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const product = await Product.find({_id:id}).populate('category')
-
-//     function  generateBreadcrumbs(product) {
-//       // Assuming product has a category property
-     
-//       const category = product.category
-//       console.log(category)
-//       // Assuming you have a predefined breadcrumb structure
-//       const breadcrumbs = [
-//           { label: 'Home', url: '/home' },
-//           { label: 'Products', url: '/products' },
-//           { label: category, url: `/products/${category}` },
-//           { label: product.name, url: `/products/${category}/${product._id}` }
-//       ];
-//       return breadcrumbs;
-    
-//     }
-//     console.log(product)
-//     const breadcrumbs = generateBreadcrumbs(product)
-//     console.log(breadcrumbs)
-//     res.render('product-details.hbs', { product,breadcrumbs });
-   
-//   }
-
-  
-     
-//   catch (error) {
-//       console.error(error);
-//       res.status(500).send('Internal Server Error');
-//   }
-// };
 const getProductDetails = async (req, res) => {
   try {
     const id = req.params.id;
-    const user=req.session.user_id
-    const product = await Product.findOne({_id:id}).populate('category'); // Populate the 'category' field
-    
-   
-   
-    
+    const user = req.session.user_id
+    const product = await Product.findOne({ _id: id }).populate('category'); // Populate the 'category' field
+
+
+
+
     if (!product) {
       // Handle case where product is not found
       return res.status(404).send('Product not found');
@@ -317,11 +255,11 @@ const getProductDetails = async (req, res) => {
       ];
       return breadcrumbs;
     }
-    
+
 
     const breadcrumbs = generateBreadcrumbs(product);
-    const products = await Product.find({_id:id}).populate('category')
-    res.render('product-details.hbs', { products, breadcrumbs,user });
+    const products = await Product.find({ _id: id }).populate('category')
+    res.render('product-details.hbs', { products, breadcrumbs, user });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -330,104 +268,139 @@ const getProductDetails = async (req, res) => {
 
 const getProductsUnderWomenCategory = async (req, res) => {
   try {
-      const womenCategory = await Category.findOne({ name: 'women' });
+    const currentPage = parseInt(req.query.page) || 1; // Default to page 1
+    const itemsPerPage = 5; // Adjust as needed
 
-      if (!womenCategory) {
-          return res.status(404).json({ message: "Category 'women' not found" });
-      }
+    // Find the women category
+    const womenCategory = await Category.findOne({ name: 'women' });
 
-      const products = await Product.find({ category: womenCategory._id, isDeleted: false });
+    if (!womenCategory) {
+      return res.status(404).json({ message: "Category 'women' not found" });
+    }
 
-      res.render('womenProducts', { products });
+    // Calculate skip and limit values based on page number and items per page
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    // Get total product count for the women category
+    const totalProductsCount = await Product.countDocuments({ category: womenCategory._id, isDeleted: false });
+
+    // Find products with pagination
+    const products = await Product.find({ category: womenCategory._id, isDeleted: false })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
+
+    // Generate pagination buttons
+    const paginationButtons = generatePaginationButtons(currentPage, totalPages);
+
+    res.render('womenProducts', {
+      products,
+      currentPage,
+      totalPages,
+      paginationButtons,
+    });
   } catch (err) {
-      console.error('Error fetching products under women category:', err);
-      res.status(500).json({ message: 'Internal server error' });
+    console.error('Error fetching products under women category:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 const getProductsUndermenCategory = async (req, res) => {
   try {
-      const menCategory = await Category.findOne({ name: 'men' });
+    const currentPage = parseInt(req.query.page) || 1;
+    const itemsPerPage = 5;  // Adjust this number based on your preference
 
-      if (!menCategory) {
-          return res.status(404).json({ message: "Category 'men' not found" });
-      }
+    const menCategory = await Category.findOne({ name: 'men' });
 
-      const products = await Product.find({ category: menCategory._id, isDeleted: false });
+    if (!menCategory) {
+      return res.status(404).json({ message: "Category 'men' not found" });
+    }
 
-      res.render('menProducts', { products });
+    const skip = (currentPage - 1) * itemsPerPage;
+    const totalProductsCount = await Product.countDocuments({ category: menCategory._id, isDeleted: false });
+    const products = await Product.find({ category: menCategory._id, isDeleted: false })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
+    const paginationButtons = generatePaginationButtons(currentPage, totalPages);
+
+    res.render('menProducts', {
+      products,
+      currentPage,
+      totalPages,
+      paginationButtons,
+    });
   } catch (err) {
-      console.error('Error fetching products under women category:', err);
-      res.status(500).json({ message: 'Internal server error' });
+    console.error('Error fetching products under men category:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
-const sortFun=(products,sortby)=>{
-  
+const sortFun = (products, sortby) => {
+
 }
 
 
 // Define a route to handle sorting requests
 const sortProducts = async (req, res) => {
-  const sortBy = req.params.criteria; // Extract the sorting criteria from the route parameter
-  try {
-    // Fetch products from the database
-    let products = await Product.find({ isDeleted: false }).lean(); // Assuming you're using Mongoose and want plain JavaScript objects
+  const sortBy = req.params.criteria;
+  const currentPage = parseInt(req.query.page) || 1;
+  const itemsPerPage = 5;
+  const skip = (currentPage - 1) * itemsPerPage;
+  const limit = itemsPerPage;
 
-    // Function to get the effective price considering the offer price
+  try {
+    const totalProductsCount = await Product.countDocuments({ isDeleted: false });
+    let products = await Product.find({ isDeleted: false }).lean();
+
     const getEffectivePrice = (product) => {
       return product.onOffer ? product.offerPrice : product.price;
     };
 
-    // Sort the products based on the criteria
     switch (sortBy) {
       case 'popularity':
-        // Sort products by popularity
-        // Implement your sorting logic here
+        // Sort by popularity
         break;
       case 'priceLowToHigh':
-        // Sort products by price low to high
         products.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
         break;
       case 'priceHighToLow':
-        // Sort products by price high to low
         products.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
         break;
       case 'averageRatings':
-        // Sort products by average ratings
-        // Implement your sorting logic here
+        // Sort by average ratings
         break;
       case 'featured':
-        // Sort products by isFeatured field, showing featured products first
-        products.sort((a, b) => {
-          if (a.isFeatured && !b.isFeatured) {
-            return -1; // a is featured, b is not, so a comes first
-          } else if (!a.isFeatured && b.isFeatured) {
-            return 1; // b is featured, a is not, so b comes first
-          } else {
-            return 0; // both are featured or not featured, maintain the existing order
-          }
-        });
+        products.sort((a, b) => (a.isFeatured && !b.isFeatured ? -1 : !a.isFeatured && b.isFeatured ? 1 : 0));
         break;
       case 'aToZ':
-        // Sort products by name A to Z
         products.sort((a, b) => a.name.localeCompare(b.name));
         break;
       case 'zToA':
-        // Sort products by name Z to A
         products.sort((a, b) => b.name.localeCompare(a.name));
         break;
       case 'newArrivals':
-        // Sort products by creation date in descending order to show the newest arrivals first
         products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
       default:
-        // If the provided sorting criteria is invalid, default to sorting by popularity
-        // Implement your default sorting logic here
+        // Default sorting
         break;
     }
 
-    // Render the products page with the sorted products
-    res.render('products', { products });
+    products = products.slice(skip, skip + limit);
+
+    const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
+    const paginationButtons = generatePaginationButtons(currentPage, totalPages);
+
+    res.render('products', {
+      products,
+      currentPage,
+      totalPages,
+      paginationButtons
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
@@ -436,80 +409,82 @@ const sortProducts = async (req, res) => {
 
 
 
-// Backend route for handling search requests
-const searchProduct= async (req, res) => {
-  try {
-      const query = req.query.q; // Assuming the search query parameter is 'q'
-      const sortBy = req.query.sortBy
-      const getEffectivePrice = (product) => {
-        return product.onOffer ? product.offerPrice : product.price;
-      };
-      const products = await Product.find({
-          $or: [
-              { name: { $regex: query, $options: 'i' } },
-              { description: { $regex: query, $options: 'i' } }
-          ],
-          active: true // Optionally, filter only active products
-      });
-      if (sortBy) {
-        switch (sortBy) {
-          case 'popularity':
-            // Sort products by popularity
-            // Implement your sorting logic here
-            break;
-          case 'priceLowToHigh':
-            // Sort products by price low to high
-            products.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
-            break;
-          case 'priceHighToLow':
-            // Sort products by price high to low
-            products.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
-            break;
-          case 'averageRatings':
-            // Sort products by average ratings
-            // Implement your sorting logic here
-            break;
-          case 'featured':
-            // Sort products by isFeatured field, showing featured products first
-            products.sort((a, b) => {
-              if (a.isFeatured && !b.isFeatured) {
-                return -1; // a is featured, b is not, so a comes first
-              } else if (!a.isFeatured && b.isFeatured) {
-                return 1; // b is featured, a is not, so b comes first
-              } else {
-                return 0; // both are featured or not featured, maintain the existing order
-              }
-            });
-            break;
-          case 'aToZ':
-            // Sort products by name A to Z
-            products.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-          case 'zToA':
-            // Sort products by name Z to A
-            products.sort((a, b) => b.name.localeCompare(a.name));
-            break;
-          case 'newArrivals':
-            // Sort products by creation date in descending order to show the newest arrivals first
-            products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            break;
-          default:
-            // If the provided sorting criteria is invalid, default to sorting by popularity
-            // Implement your default sorting logic here
-            break;
-        }
 
+// Backend route for handling search requests
+const searchProduct = async (req, res) => {
+  const query = req.query.q;
+  const sortBy = req.query.sortBy;
+  const currentPage = parseInt(req.query.page) || 1;
+  const itemsPerPage = 5;
+  const skip = (currentPage - 1) * itemsPerPage;
+  const limit = itemsPerPage;
+
+  try {
+    const getEffectivePrice = (product) => {
+      return product.onOffer ? product.offerPrice : product.price;
+    };
+
+    let products = await Product.find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ],
+      active: true
+    });
+
+    if (sortBy) {
+      switch (sortBy) {
+        case 'popularity':
+          // Sort by popularity
+          break;
+        case 'priceLowToHigh':
+          products.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+          break;
+        case 'priceHighToLow':
+          products.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+          break;
+        case 'averageRatings':
+          // Sort by average ratings
+          break;
+        case 'featured':
+          products.sort((a, b) => (a.isFeatured && !b.isFeatured ? -1 : !a.isFeatured && b.isFeatured ? 1 : 0));
+          break;
+        case 'aToZ':
+          products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'zToA':
+          products.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        case 'newArrivals':
+          products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          break;
+        default:
+          // Default sorting
+          break;
+      }
     }
-     
-      res.render('products',{products});
+
+    const totalProductsCount = products.length;
+    products = products.slice(skip, skip + limit);
+
+    const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
+    const paginationButtons = generatePaginationButtons(currentPage, totalPages);
+
+    res.render('products', {
+      products,
+      currentPage,
+      totalPages,
+      paginationButtons
+    });
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
+
 // Define route for handling filter requests
-const filterProducts= async (req, res) => {
+const filterProducts = async (req, res) => {
   try {
     // Extract filter parameters from query string
     const { price, color, size } = req.query;
@@ -531,7 +506,7 @@ const filterProducts= async (req, res) => {
   }
 };
 
-const imageDeleteUpdate= async (req, res) => {
+const imageDeleteUpdate = async (req, res) => {
   try {
     const { id } = req.params;
     const { filename } = req.body;
@@ -555,26 +530,65 @@ const imageDeleteUpdate= async (req, res) => {
   }
 };
 
+const calcTotal = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const quantity = parseInt(req.query.quantity);
+
+    // Find the product in the database by ID
+    const product = await Product.findById(productId);
+
+    // Check if the product exists
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    // Determine the price to use for calculation
+    let priceForCalculation = 0;
+    if (product.offerPrice && product.categoryOfferPrice) {
+      // If both offerPrice and categoryOfferPrice exist, use the least one
+      priceForCalculation = Math.min(product.offerPrice, product.categoryOfferPrice);
+    } else if (product.offerPrice) {
+      // If only offerPrice exists, use that
+      priceForCalculation = product.offerPrice;
+    } else if (product.categoryOfferPrice) {
+      // If only categoryOfferPrice exists, use that
+      priceForCalculation = product.categoryOfferPrice;
+    } else {
+      // Otherwise, use the actual price
+      priceForCalculation = product.price;
+    }
+
+    // Calculate total price based on selected price and quantity
+    const totalPrice = priceForCalculation * quantity;
+
+    // Send the total price as JSON response
+    res.json(totalPrice);
+  } catch (error) {
+    // Handle errors
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 
+module.exports = {
 
-
-module.exports={
-    
-    addProduct,
-    productAdd,
-    getProducts,
-    editProduct,
-    updateProduct,
-    deleteProduct,
-    getAllProducts,
+  addProduct,
+  productAdd,
+  getProducts,
+  editProduct,
+  updateProduct,
+  deleteProduct,
+  getAllProducts,
   getProductDetails,
-  getProductsUnderWomenCategory ,
-  getProductsUndermenCategory ,
+  getProductsUnderWomenCategory,
+  getProductsUndermenCategory,
   sortProducts,
   searchProduct,
   filterProducts,
-  imageDeleteUpdate
-  
+  imageDeleteUpdate,
+  calcTotal
+
 }

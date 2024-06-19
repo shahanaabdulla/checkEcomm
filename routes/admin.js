@@ -3,22 +3,10 @@ var router = express.Router();
 const mongoose = require('mongoose')
 const session = require('express-session');
 const multer = require('multer')
-//const productMulter=require('../multer/product')
 const { uploads, resizeImage } = require('../multer/product')
 const adminAuth = require('../midddlewares/adminAuth')
 
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, './public/productImages')
-//   },
-//   filename: function (req, file, cb) {
-//     const fileName = file.originalname.split(' ').join('-');
-//     cb(null, fileName + '-' + Date.now);
-//   }
-// })
-
-// const upload = multer({ storage:storage})
 const {
   loadLogin,
   adminDashboard,
@@ -30,6 +18,7 @@ const {
   adminLogout,
   loadAddUser,
   loadDashboard,
+  
  
 } = require('../controllers/adminController')
 const {
@@ -85,7 +74,6 @@ router.get('/product', productAdd)
 router.post('/product', resizeImage, uploads.fields([{ name: 'image' }, { name: 'images', maxCount: 3 }]), addProduct);
 
 
-// router.post('/product',upload.single('image'),product_create_post)
 router.get('/productList', getProducts)
 router.get('/edit-product/:id', editProduct);
 router.post('/edit-product/:id', uploads.fields([{ name: 'image' }, { name: 'images', maxCount: 3 }]), updateProduct);
@@ -105,20 +93,9 @@ router.get('/edit-category/:id', editCategory)
 router.post('/edit-category/:id', updateCategory)
 router.get('/:id', deleteCategory)
 
+
+
 router.post('/delete-product-image/:id',imageDeleteUpdate)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 module.exports = router

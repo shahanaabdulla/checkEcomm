@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coupon Management</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 </head>
+
 <body>
   <div class="container">
     <h1 class="mt-5">Coupon Management</h1>
@@ -13,7 +15,8 @@
       <input type="hidden" id="couponId" name="couponId">
       <div class="mb-3">
         <label for="code" class="form-label">Coupon Code</label>
-        <input type="text" class="form-control" id="code" name="code" required minlength="4" pattern="^[A-Za-z0-9]+$" title="Coupon code should contain only alphanumeric characters.">
+        <input type="text" class="form-control" id="code" name="code" required minlength="4" pattern="^[A-Za-z0-9]+$"
+          title="Coupon code should contain only alphanumeric characters.">
         <div class="invalid-feedback">Please enter a valid coupon code (alphanumeric characters only).</div>
       </div>
       <div class="mb-3">
@@ -27,7 +30,8 @@
       </div>
       <div class="mb-3">
         <label for="discountValue" class="form-label">Discount Value</label>
-        <input type="number" class="form-control" id="discountValue" name="discountValue" required min="0" step="0.01" title="Discount value must be a positive number.">
+        <input type="number" class="form-control" id="discountValue" name="discountValue" required min="0" step="0.01"
+          title="Discount value must be a positive number.">
         <div class="invalid-feedback">Please enter a valid discount value.</div>
       </div>
       <div class="mb-3">
@@ -60,18 +64,19 @@
       </thead>
       <tbody id="couponsList">
         {{#each coupons}}
-          <tr>
-            <td>{{this.code}}</td>
-            <td>{{this.discountType}}</td>
-            <td>{{this.discountValue}}</td>
-            <td>{{formatDate this.expirationDate}}</td>
-            <td>{{this.usageLimit}}</td>
-            <td>{{this.usedCount}}</td>
-            <td>
-              <button class="btn btn-warning btn-sm" onclick="editCoupon('{{this._id}}', '{{this.code}}', '{{this.discountType}}', '{{this.discountValue}}, '{{this.expirationDate}}', {{this.usageLimit}})">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteCoupon('{{this._id}}')">Delete</button>
-            </td>
-          </tr>
+        <tr>
+          <td>{{this.code}}</td>
+          <td>{{this.discountType}}</td>
+          <td>{{this.discountValue}}</td>
+          <td>{{formatDate this.expirationDate}}</td>
+          <td>{{this.usageLimit}}</td>
+          <td>{{this.usedCount}}</td>
+          <td>
+            <button class="btn btn-warning btn-sm"
+              onclick="editCoupon('{{this._id}}', '{{this.code}}', '{{this.discountType}}', '{{this.discountValue}}, '{{this.expirationDate}}', {{this.usageLimit}})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCoupon('{{this._id}}')">Delete</button>
+          </td>
+        </tr>
         {{/each}}
       </tbody>
     </table>
@@ -79,7 +84,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
       // Load existing coupons
       const loadCoupons = async () => {
         try {
@@ -110,7 +115,7 @@
       loadCoupons();
 
       // Create or update coupon
-      $('#couponForm').submit(async function(event) {
+      $('#couponForm').submit(async function (event) {
         event.preventDefault();
         $('#errorMessage').hide(); // Hide the error message area
 
@@ -176,4 +181,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -1,55 +1,58 @@
+<link href="cropper/cropper.css" rel="stylesheet">
+<!-- Normalize CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+<!-- Cropper CSS -->
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css'>
+<style>
+  .page {
+    margin: 1em auto;
+    max-width: 768px;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    height: 100%;
+  }
 
- <link href="cropper/cropper.css" rel="stylesheet">
-    <!-- Normalize CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-    <!-- Cropper CSS -->
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css'>
-    <style>
-        .page {
-            margin: 1em auto;
-            max-width: 768px;
-            display: flex;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            height: 100%;
-        }
+  .box {
+    padding: 0.5em;
+    width: 100%;
+    margin: 0.5em;
+  }
 
-        .box {
-            padding: 0.5em;
-            width: 100%;
-            margin: 0.5em;
-        }
+  .box-2 {
+    padding: 0.5em;
+    width: calc(100% / 2 - 1em);
+  }
 
-        .box-2 {
-            padding: 0.5em;
-            width: calc(100% / 2 - 1em);
-        }
+  .options label,
+  .options input {
+    width: 4em;
+    padding: 0.5em 1em;
+  }
 
-        .options label,
-        .options input {
-            width: 4em;
-            padding: 0.5em 1em;
-        }
+  .btn {
+    background: white;
+    color: black;
+    border: 1px solid black;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    margin: 0.8em 0.3em;
+    display: inline-block;
+    cursor: pointer;
+  }
 
-        .btn {
-            background: white;
-            color: black;
-            border: 1px solid black;
-            padding: 0.5em 1em;
-            text-decoration: none;
-            margin: 0.8em 0.3em;
-            display: inline-block;
-            cursor: pointer;
-        }
+  .hide {
+    display: none;
+  }
 
-        .hide {
-            display: none;
-        }
+  img {
+    max-width: 100%;
+  }
 
-        img {
-            max-width: 100%;
-        }
-    </style>
+  .error {
+    color: red;
+  }
+</style>
 
 <section class="vh-100" style="background-color: #eee">
   <div class="container h-100">
@@ -62,196 +65,137 @@
                 <p class="text-center text-info h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
                   Update Product
                 </p>
-        {{#each productData}}
-                <form class="mx-1 mx-md-4" action="" method="POST" role="form" enctype="multipart/form-data">
-                    
-                  <div class="d-flex flex-row align-items-center mb-4">
-                   
-                    <div class="form-outline flex-fill mb-0">
-                      <input type="text" class="form-control" value="{{this.name}}" name="name" placeholder="Name" required/>
-                    </div>
-                  </div>
-
-                 
+                {{#each productData}}
+                <form class="mx-1 mx-md-4" id="product-form" action="" method="POST" role="form"
+                  enctype="multipart/form-data">
 
                   <div class="d-flex flex-row align-items-center mb-4">
-                    
+
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="description"
-                        placeholder="Description"
-                        required
-                       value="{{this.description}}"
-                      />
-                      
+                      <input type="text" class="form-control" value="{{this.name}}" name="name" placeholder="Name"
+                        required />
                     </div>
                   </div>
 
-                  {{!-- <div class="d-flex flex-row align-items-center mb-4">
-                    
-                    <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="category"
-                        placeholder="Category"
-                        required
-                       value="{{this.category}}"
-                      />
-                      
-                    </div>
-                  </div> --}}
+
 
                   <div class="d-flex flex-row align-items-center mb-4">
-                   
+
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="size"
-                        placeholder="Size"
-                        required
-                        value="{{this.size}}"
-                      />
-                      
+                      <input type="text" class="form-control" name="description" placeholder="Description" required
+                        value="{{this.description}}" />
+
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+
+                    <div class="form-outline flex-fill mb-0">
+                      <input type="text" class="form-control" name="size" placeholder="Size" required
+                        value="{{this.size}}" />
+
                     </div>
                   </div>
 
 
-                   <div class="d-flex flex-row align-items-center mb-4">
-                   
+                  <div class="d-flex flex-row align-items-center mb-4">
+
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="price"
-                        placeholder="Price"
-                        required
-                        value="{{this.price}}"
-                      />
-                      
+                      <input type="text" class="form-control" name="price" placeholder="Price" required
+                        value="{{this.price}}" />
+
                     </div>
                   </div>
 
-                   <div class="d-flex flex-row align-items-center mb-4">
-                   
+                  <div class="d-flex flex-row align-items-center mb-4">
+
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="stock"
-                        placeholder="Stock"
-                        required
-                        value="{{this.stock}}"
-                      />
-                      
+                      <input type="text" class="form-control" name="stock" placeholder="Stock" required
+                        value="{{this.stock}}" />
+
                     </div>
                   </div>
                   <div class="d-flex flex-row align-items-center mb-4">
-                   
+
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="category"
-                        placeholder="category"
-                        required
-                        value="{{this.category.name}}"
-                      />
-                      
+                      <input type="text" class="form-control" name="category" placeholder="category" required
+                        value="{{this.category.name}}" />
+
                     </div>
                   </div>
-              
-
-              <div class="d-flex flex-row align-items-center mb-4">
-  <div class="form-outline flex-fill mb-0">
-    {{#if this.images}}
-      {{#each this.images}}
-        <div class="image-preview" style="display: inline-block; margin-right: 10px; position: relative;">
-          <img src="/productImages/{{this}}" alt="Selected Image" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
-         <button class="delete-image" data-filename="{{this}}" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" type="button">&times;</button>
-
-        </div>
-      {{/each}}
-    {{/if}}
-    <input type="file" class="form-control" name="images" accept="image/*" multiple onchange="previewImages(event)">
-    
-  </div>
-</div>
 
 
-                   
-                     <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="active" name="active" value="true">
-            <label class="form-check-label" for="active">Active </label>
-          </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="isFeatured" name="isFeatured" value="true">
-            <label class="form-check-label" for="isFeatured">isFeatured </label>
-          </div>
-                  {{!-- <div class="d-flex flex-row align-items-center mb-4">
-                    <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                  <div class="d-flex flex-row align-items-center mb-4">
                     <div class="form-outline flex-fill mb-0">
-                      <input
-                        type="password"
-                        class="form-control"
-                        placeholder="Enter Password"
-                        name="password"
-                        required
-                        value="{{user.password}}"
-                      />
-                     
+                      <div id="existing-images">
+                        {{#if this.images}}
+                        {{#each this.images}}
+                        <div class="image-preview"
+                          style="display: inline-block; margin-right: 10px; position: relative;">
+                          <img src="/productImages/{{this}}" alt="Selected Image"
+                            style="max-width: 100px; max-height: 100px; margin-right: 10px;">
+                          <button class="delete-image" data-filename="{{this}}"
+                            style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;"
+                            type="button">&times;</button>
+                        </div>
+                        {{/each}}
+                        {{/if}}
+                      </div>
+                      <input type="file" class="form-control" id="additional-images" name="images" accept="image/*"
+                        multiple>
+                      <div id="additional-images-error" class="error"></div>
                     </div>
-                  </div> --}}
-                     <main class="page">
-               <div class="d-flex flex-row align-items-center mb-4">
-  <div class="form-outline flex-fill mb-0">
-    <img src="{{this.image}}" alt="Selected Image" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
-    {{!-- <input type="file" class="form-control" name="image" accept="image/*" onchange="previewImage(this)" style="display: inline-block; vertical-align: middle;"> --}}
- <div class="box">
-                        <input type="file" id="file-input" name="image">
-                    </div>
-                    <!-- leftbox -->
-                    <div class="box-2">
-                        <div class="result"></div>
-                    </div>
-                    <!--rightbox-->
-                    <div class="box-2 img-result hide">
-                        <!-- result of crop -->
-                        <img class="cropped" src="" alt="">
-                    </div>
-                    <!-- input file -->
-                    <div class="box">
-                        <div class="options hide">
+                  </div>
+
+
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="active" name="active" value="true">
+                    <label class="form-check-label" for="active">Active </label>
+                  </div>
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isFeatured" name="isFeatured" value="true">
+                    <label class="form-check-label" for="isFeatured">isFeatured </label>
+                  </div>
+                  <main class="page">
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <div class="form-outline flex-fill mb-0">
+                        <img src="{{this.image}}" alt="Selected Image"
+                          style="max-width: 100px; max-height: 100px; margin-right: 10px;">
+                        <div class="box">
+                          <input type="file" id="file-input" name="image">
+                          <div id="image-error" class="error"></div>
+                        </div>
+                        <!-- leftbox -->
+                        <div class="box-2">
+                          <div class="result"></div>
+                        </div>
+                        <!-- rightbox -->
+                        <div class="box-2 img-result hide">
+                          <!-- result of crop -->
+                          <img class="cropped" src="" alt="">
+                        </div>
+                        <!-- input file -->
+                        <div class="box">
+                          <div class="options hide">
                             <label> Width</label>
                             <input type="number" class="img-w" value="300" min="100" max="1200" />
+                          </div>
+                          <!-- save btn -->
+                          <button class="btn save hide">Save</button>
+                          <button class="btn update">Update Product</button>
                         </div>
-                        <!-- save btn -->
-                        <button class="btn save hide ">Save</button>
-                        <button class="btn update ">Update Product</button>
+                      </div>
                     </div>
-  </div>
-</div>
-</main>
+                  </main>
 
-    
-                  {{!-- <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                      Update Product
-                    </button>
-                  </div> --}}
-                   <input type="hidden" id="cropped-image" name="croppedImage">
+                  <input type="hidden" id="cropped-image" name="croppedImage">
                   <input type="hidden" name="id" value="{{this._id}}">
                 </form>
-{{/each}} 
+                {{/each}}
 
               </div>
-              <div
-                class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2"
-              >
-                
+              <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+
               </div>
             </div>
           </div>
@@ -260,120 +204,90 @@
     </div>
   </div>
 </section>
-{{!-- {{/if}} --}}
 
 <!-- Section: Design Block -->
- <script src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js'></script>
-    <script>
-        // Variables
-        let result = document.querySelector('.result');
-        let save = document.querySelector('.save');
-        let updateBtn = document.querySelector('.update');
-        let cropper;
+<script src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js'></script>
+<script>
+  // Variables
+  let result = document.querySelector('.result');
+  let save = document.querySelector('.save');
+  let updateBtn = document.querySelector('.update');
+  let cropper;
 
-        // Handle image selection event
-        document.getElementById('file-input').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
+  // Handle image selection event for cropping
+  document.getElementById('file-input').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    const errorElement = document.getElementById('image-error'); // Error element for main image
+    errorElement.textContent = ''; // Clear previous error messages
 
-            reader.onload = function (event) {
-                const img = new Image();
-                img.src = event.target.result;
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      errorElement.textContent = 'Please upload only image files.';
+      event.target.value = ''; // Clear the file input
+      return;
+    }
 
-                // Clear previous image
-                result.innerHTML = '';
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const img = new Image();
+      img.id = 'image';
+      img.src = event.target.result;
+      result.innerHTML = '';
+      result.appendChild(img);
 
-                // Append the image to the result div
-                result.appendChild(img);
+      // Initialize Cropper
+      cropper = new Cropper(img, {
+        aspectRatio: 1, // Aspect ratio for cropping
+        viewMode: 1 // Set to 1 for restrict mode, 0 for unrestricted
+      });
 
-                // Initialize Cropper
-                cropper = new Cropper(img, {
-                    aspectRatio: 1, // Aspect ratio for cropping
-                    viewMode: 1 // Set to 1 for restrict mode, 0 for unrestricted
-                });
+      // Show save button and cropping options
+      save.classList.remove('hide');
+      document.querySelector('.options').classList.remove('hide');
+    };
 
-                // Show save button and cropping options
-                save.classList.remove('hide');
-                document.querySelector('.options').classList.remove('hide');
-            };
+    reader.readAsDataURL(file);
+  });
 
-            reader.readAsDataURL(file);
-        });
+  // Handle save button click
+  save.addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent form submission
 
-        // Handle save button click
-        save.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent form submission
+    // Get cropped image data
+    const canvas = cropper.getCroppedCanvas({
+      width: parseInt(document.querySelector('.img-w').value) || 300 // Width of the cropped image
+    });
 
-            // Get cropped image data
-            const canvas = cropper.getCroppedCanvas({
-                width: parseInt(document.querySelector('.img-w').value) || 300 // Width of the cropped image
-            });
+    // Clear previous cropped image
+    document.querySelector('.cropped').remove();
 
-            // Clear previous cropped image
-            document.querySelector('.cropped').remove();
+    // Create new cropped image element and append it
+    const croppedImg = document.createElement('img');
+    croppedImg.classList.add('cropped');
+    croppedImg.src = canvas.toDataURL();
+    result.appendChild(croppedImg);
 
-            // Create new cropped image element and append it
-            const croppedImg = document.createElement('img');
-            croppedImg.classList.add('cropped');
-            croppedImg.src = canvas.toDataURL();
-            result.appendChild(croppedImg);
+    // Show update button
+    updateBtn.classList.remove('hide');
 
-            // Show update button
-            updateBtn.classList.remove('hide');
+    // Set the value of the hidden input field to the cropped image data URL
+    document.getElementById('cropped-image').value = croppedImg.src;
+  });
 
-            // Set the value of the hidden input field to the cropped image data URL
-            document.getElementById('cropped-image').value = croppedImg.src;
-        });
+  // Handle update button click
+  updateBtn.addEventListener('click', function () {
+    // Get the form data
+    const formData = new FormData(document.getElementById('product-form'));
+    const productId = document.querySelector('input[name="id"]').value;
 
-        // Handle update button click
-        updateBtn.addEventListener('click', function () {
-            // Get the form data
-            const formData = new FormData(document.getElementById('product-form'));
-            const productId = document.querySelector('input[name="id"]').value;
+    // Append the cropped image data to formData
+    formData.append('croppedImage', document.getElementById('cropped-image').value);
 
-            // Append the cropped image data to formData
-            formData.append('croppedImage', document.getElementById('cropped-image').value);
-
-            // Send an AJAX request to the backend
-            fetch('/edit-product/' + productId,{
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Handle success response
-                console.log(data);
-                // Redirect or update UI as needed
-            })
-            .catch(error => {
-                // Handle error
-                console.error('There was a problem with the request:', error);
-            });
-        });
-
-      document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.delete-image').forEach(function (button) {
-    button.addEventListener('click', function (event) {
-      event.preventDefault();  // Prevent default action
-      event.stopPropagation(); // Stop event propagation
-
-      const filename = this.getAttribute('data-filename');
-      const productId = document.querySelector('input[name="id"]').value;
-      const imagePreview = this.parentElement;
-
-      // Make an AJAX request to delete the image
-      fetch(`/admin/delete-product-image/${productId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ filename: filename })
-      })
+    // Send an AJAX request to the backend
+    fetch('/edit-product/' + productId, {
+      method: 'POST',
+      body: formData
+    })
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -381,14 +295,106 @@
         return response.json();
       })
       .then(data => {
-        // Remove the image preview element from the DOM
-        imagePreview.remove();
+        // Handle success response
+        console.log(data);
+        // Redirect or update UI as needed
       })
       .catch(error => {
+        // Handle error
         console.error('There was a problem with the request:', error);
+      });
+  });
+
+  // Handle additional image file selection and validation
+  document.getElementById('additional-images').addEventListener('change', function (event) {
+    const files = event.target.files;
+    const errorElement = document.getElementById('additional-images-error');
+    const currentImages = document.querySelectorAll('.image-preview img').length;
+    const totalImages = currentImages + files.length;
+    errorElement.textContent = ''; // Clear previous error messages
+
+    if (totalImages > 3) {
+      errorElement.textContent = 'Maximum 3 images allowed. Please delete an existing image to add a new one.';
+      event.target.value = ''; // Clear the file input
+      return;
+    }
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        errorElement.textContent = 'Please upload only image files.';
+        event.target.value = ''; // Clear the file input
+        return;
+      }
+    }
+
+    // If valid, display previews
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.style.maxWidth = '100px';
+        img.style.maxHeight = '100px';
+        img.style.marginRight = '10px';
+        const imagePreview = document.createElement('div');
+        imagePreview.classList.add('image-preview');
+        imagePreview.style.display = 'inline-block';
+        imagePreview.style.position = 'relative';
+        imagePreview.appendChild(img);
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-image');
+        deleteButton.style.position = 'absolute';
+        deleteButton.style.top = '0';
+        deleteButton.style.right = '0';
+        deleteButton.style.background = 'red';
+        deleteButton.style.color = 'white';
+        deleteButton.style.border = 'none';
+        deleteButton.style.cursor = 'pointer';
+        deleteButton.type = 'button';
+        deleteButton.innerHTML = '&times;';
+        deleteButton.addEventListener('click', function () {
+          imagePreview.remove();
+          document.getElementById('additional-images').value = ''; // Clear the file input
+        });
+        imagePreview.appendChild(deleteButton);
+        document.getElementById('existing-images').appendChild(imagePreview);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-image').forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();  // Prevent default action
+        event.stopPropagation(); // Stop event propagation
+
+        const filename = this.getAttribute('data-filename');
+        const productId = document.querySelector('input[name="id"]').value;
+        const imagePreview = this.parentElement;
+
+        // Make an AJAX request to delete the image
+        fetch(`/admin/delete-product-image/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ filename: filename })
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Remove the image preview element from the DOM
+            imagePreview.remove();
+          })
+          .catch(error => {
+            console.error('There was a problem with the request:', error);
+          });
       });
     });
   });
-});
-
-    </script>
+</script>

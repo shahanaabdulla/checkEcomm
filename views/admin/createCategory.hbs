@@ -1,24 +1,17 @@
 <div classs="row">
 
-<div class="container col-md-3">
+    <div class="container col-md-3">
 
-<h1 class="mb-4">Add Category</h1>
+        <h1 class="mb-4">Add Category</h1>
 
-    <!-- Form for adding a product -->
-    <form action="/admin/category" method="POST" >
-        <div class="mb-3">
-            <label for="name" class="form-label">Category Name:</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-        </div>
+        <!-- Form for adding a product -->
+        <form action="/admin/category" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Category Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
 
-        {{!-- <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="isDeletd" name="isFeatured" value="true">
-            <label class="form-check-label" for="isDeleted">isFeatured </label>
-          </div> --}}
-
-      
-
-       <button type="submit" class="btn btn-primary">Add Category</button>
-  </form>
-  </div>
+            <button type="submit" class="btn btn-primary">Add Category</button>
+        </form>
+    </div>
 </div>

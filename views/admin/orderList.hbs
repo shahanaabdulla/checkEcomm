@@ -7,6 +7,21 @@
     .update-btn {
       margin-left: 5px;
     }
+
+   
+    .status-select {
+        margin-right: 5px;
+    }
+
+    .update-btn {
+        margin-left: 5px;
+    }
+
+    .status-red {
+        background-color: red;
+        color: white;
+    }
+
   </style>
 </head>
 <body>
@@ -28,6 +43,8 @@
             <th scope="col">Shipping Address</th>
             <th scope="col">Payment Method</th>
             <th scope="col">Status</th>
+             <th scope="col">Reason for Return</th>
+
             <th scope="col">Created At</th>
             <th scope="col">Update Status</th>
           </tr>
@@ -48,15 +65,27 @@
             <td>{{this.totalPrice}}</td>
             <td>{{this.shippingAddress}}</td>
             <td>{{this.paymentMethod}}</td>
-            <td class="status">{{this.status}}</td>
+           <td class="status {{#if (or (eq this.status 'Returned') (eq this.status 'Return request placed'))}}status-red{{/if}}">{{this.status}}</td>
+
+             <td>{{this.returnReason}}</td>
            <td>{{formatDate this.createdAt}}</td>
             <td>
-              <select class="form-select status-select" data-order-id="{{this._id}}">
-                <option value="Confirmed">Confirmed</option>
-                <option value="Out for Delivery">Out for Delivery</option>
-                <option value="Delivered">Delivered</option>
-                 <option value="Returned">Returned</option>
-              </select>
+             <select class="form-select status-select" data-order-id="{{this._id}}">
+  
+  {{#if (eq this.status 'Return request placed')}}
+    <option value="Confirmed">Confirmed</option>
+  <option value="Out for Delivery">Out for Delivery</option>
+  <option value="Delivered">Delivered</option>
+  <option value="Returned">Returned</option>
+    <option value="Approved">Return Approved</option>
+    <option value="Rejected">Return Rejected</option>
+  {{else}}
+   <option value="Confirmed">Confirmed</option>
+  <option value="Out for Delivery">Out for Delivery</option>
+  <option value="Delivered">Delivered</option>
+  <option value="Returned">Returned</option>
+  {{/if}}
+</select>
               <button class="btn btn-primary update-btn">Update</button>
             </td>
           </tr>
@@ -109,6 +138,10 @@ $(document).ready(function(){
             let statusCell = this.parentNode.parentNode.querySelector('.status');
             if (statusCell) {
               statusCell.textContent = newStatus;
+               statusCell.classList.remove('status-red');
+                if (newStatus === 'Returned' || newStatus === 'Return request placed') {
+                            statusCell.classList.add('status-red');
+                        }
             } else {
               throw new Error('Failed to find status cell.');
             }

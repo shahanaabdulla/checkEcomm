@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Failed</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+
+    .failure-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .failure-container h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #FF0000;
+    }
+
+    .failure-container p {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .failure-container .btn-retry {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #F37254;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .failure-container .btn-retry:hover {
+      background-color: #d86044;
+    }
+  </style>
+</head>
+<body>
+  <div class="failure-container">
+    <h2>Payment Failed</h2>
+    <p>Your payment could not be processed. Please try again.</p>
+    <p><strong>Payment ID:</strong> {{razorpay_payment_id}}</p>
+    <p><strong>Order ID:</strong> {{razorpay_order_id}}</p>
+    <p><strong>Error Code:</strong> {{error_code}}</p>
+    <p><strong>Error Description:</strong> {{error_description}}</p>
+   <button id="retry-button" class="btn-retry">Retry Payment</button>
+  </div>
+
+   <script>
+    document.getElementById('retry-button').onclick = function() {
+      const orderId = "{{razorpay_order_id}}"; // Pass the order ID to the failure page
+      window.location.href = `/razorpay/canceled?razorpay_order_id=${orderId}`;
+    }
+  </script>
+</body>
+</html>

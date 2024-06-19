@@ -11,6 +11,7 @@
 <body>
     <div class="container">
         <h1>Offer Management</h1>
+         <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4 text-danger">{{message}}</p>
         <form id="createOfferForm" class="needs-validation" novalidate>
             <input type="hidden" id="offerId">
             <div class="form-group">
@@ -29,26 +30,8 @@
                 <label for="endDate">End Date</label>
                 <input type="date" class="form-control" id="endDate" required>
             </div>
-            <div class="form-group">
-                    <label for="product">Product:</label>
-                    <select name="product" id="product" class="form-control" multiple required>
-                        <option value="">Select product</option>
-                        {{#each products}}
-                        <option value="{{_id}}">{{name}}</option>
-                        {{/each}}
-                    </select>
-                    <div class="error" id="product-error"></div>
-                </div>
-            <div class="form-group">
-                    <label for="category">Category:</label>
-                    <select name="category" id="category" class="form-control" required>
-                        <option value="">Select category</option>
-                        {{#each categories}}
-                        <option value="{{_id}}">{{name}}</option>
-                        {{/each}}
-                    </select>
-                    <div class="error" id="category-error"></div>
-                </div>
+           
+           
             <button type="submit" class="btn btn-primary">Create Offer</button>
         </form>
         <table class="table mt-4">
@@ -75,7 +58,11 @@
                         {{this.name}}{{#unless @last}}, {{/unless}}
                     {{/each}}
                 </td>
-                <td>{{this.category.name}}</td>
+                   <td>
+                    {{#each this.categories}}
+                        {{this.name}}{{#unless @last}}, {{/unless}}
+                    {{/each}}
+                </td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editOffer('{{this._id}}', '{{this.name}}', '{{this.discountPercentage}}', '{{this.startDate}}', '{{this.endDate}}', '{{#each this.product}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}}', '{{this.category.name}}')">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteOffer('{{this._id}}')">Delete</button>

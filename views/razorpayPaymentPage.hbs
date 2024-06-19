@@ -96,10 +96,23 @@
       },
       "theme": {
         "color": "#F37254"
+      },
+       "modal": {
+        "ondismiss": function() {
+          // Handle payment cancellation
+          window.location.href = "/razorpay/canceled?razorpay_order_id={{razorpayOrder.id}}";
+        }
       }
     };
-    var rzp = new Razorpay(options);
     
+    var rzp = new Razorpay(options);
+     rzp.on('payment.failed', function(response) {
+      // Redirect to a failure page with relevant information
+      window.location.href = "/razorpay/failure?razorpay_payment_id=" + response.error.metadata.payment_id +
+                             "&razorpay_order_id=" + response.error.metadata.order_id +
+                             "&error_code=" + response.error.code +
+                             "&error_description=" + response.error.description;
+    });
     document.getElementById('rzp-button').onclick = function(e){
       rzp.open();
       e.preventDefault();

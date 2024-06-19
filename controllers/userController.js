@@ -2,72 +2,49 @@ const User = require('../models/userModel')
 const Address = require('../models/addressModel')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer')
-const otpGenerator=require('otp-generator')
-const Order=require('../models/orderModel')
-const randomstring=require('randomstring')
+const Order = require('../models/orderModel')
+const randomstring = require('randomstring')
 const PasswordReset = require('../models/passwordReset');
-const Product=require('../models/productModel')
+const Product = require('../models/productModel')
 const Offer = require('../models/offerModel');
-const { isAuth, isAccess,isAuthenticated } = require("../midddlewares/auth");
 
 
-const securePassword = async(password)=>{
-   try{
-       const passwordHash = await bcrypt.hash(password,10);
-       return passwordHash
-   }catch(error) {
-       console.log(error.message)
-   }
+
+const securePassword = async (password) => {
+    try {
+        const passwordHash = await bcrypt.hash(password, 10);
+        return passwordHash
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
-const transporter= nodemailer.createTransport({
-   host: 'smtp.gmail.com',
-   port:587,
-   secure:false,
-   
-   auth:{
-       user:'duashaf123@gmail.com',
-       pass:'esbn xhtf zqmd reme'
-   },
-   tls: {
-      // do not fail on invalid certs
-      rejectUnauthorized: false
-  },
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+
+    auth: {
+        user: 'duashaf123@gmail.com',
+        pass: 'esbn xhtf zqmd reme'
+    },
+    tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+    },
 
 });
 
 
 
-//for sending mail
 
-// const sendVerifyMail = async(name, email,user_id)=>{
-//    try{
-    
-//     const mailOptions = {
-//        from:'duashaf123@gmail.com',
-//        to:email,
-//        subject:'Verification Mail',
-//        html:'<p>Hi '+name+' , Please click here to <a href="http://127.0.0.1:5000/verify?id='+user_id+' "> Verify</a> your mail.</p>'
-//     }
-//     transporter.sendMail(mailOptions, function(error,info){
-//        if(error){
-//            console.log(error);
-//        }else{
-//            console.log('Email has been sent:- ',info.response);
-//        }
-//     })
-//    }catch(error){
-//        console.log(error.message)
-//    }
-// }
-
-const homeLoad= async(req,res)=>{
-    try{
-        const offers = await Offer.find().populate('product').populate('category');
+const homeLoad = async (req, res) => {
+    try {
+        const offers = await Offer.find().populate('product').populate('categories');
         const productData = await Product.find();
-       res.render('index.hbs',{product:productData,offers})
-    }catch(error){
-       console.log(error.message)
+        res.render('index.hbs', { product: productData, offers })
+    } catch (error) {
+        console.log(error.message)
     }
 }
 
@@ -75,19 +52,19 @@ const homeLoad= async(req,res)=>{
 
 
 
-const loginLoad = async(req,res)=>{
-    try{
-       res.render('login.hbs')
-    }catch(error){
-       console.log(error.message)
+const loginLoad = async (req, res) => {
+    try {
+        res.render('login.hbs')
+    } catch (error) {
+        console.log(error.message)
     }
 }
-const signUpLoad = async(req,res)=>{
-   try{
-      res.render('signup.hbs')
-   }catch(error){
-      console.log(error.message)
-   }
+const signUpLoad = async (req, res) => {
+    try {
+        res.render('signup.hbs')
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
 
@@ -102,16 +79,16 @@ const signup_post = async (req, res) => {
             mobile: req.body.mno,
             password: spassword,
         });
-        
+
         function generateNumericOTP(length) {
-                            const digits = '0123456789';
-                            let otp = '';
-                            for (let i = 0; i < length; i++) {
-                                const randomIndex = Math.floor(Math.random() * digits.length);
-                                otp += digits[randomIndex];
-                            }
-                            return otp;
-                        }
+            const digits = '0123456789';
+            let otp = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * digits.length);
+                otp += digits[randomIndex];
+            }
+            return otp;
+        }
         // Generate OTP for the user
         const otp = generateNumericOTP(6);
         console.log(otp);
@@ -141,71 +118,9 @@ const signup_post = async (req, res) => {
 }
 
 
-
-// const verifyMail = async (req, res) => {
-//     try {
-//         const userId = req.query.id;
-
-//         // Update user's verification status
-//         const userUpdate = await User.updateOne({ _id: userId }, { $set: { is_verified: 1 } });
-
-//         console.log(userId);
-
-//         // Find user details
-//         const user = await User.findOne({ _id: userId });
-//         const email = user.email;
-
-//         console.log(email);
-
-//         if (!user) {
-//             return res.render('signup', { message: 'Invalid email ' });
-//         }
-
-//         if (userUpdate) {
-//             // If user is verified, generate and send OTP
-//             function generateNumericOTP(length) {
-//                 const digits = '0123456789';
-//                 let otp = '';
-//                 for (let i = 0; i < length; i++) {
-//                     const randomIndex = Math.floor(Math.random() * digits.length);
-//                     otp += digits[randomIndex];
-//                 }
-//                 return otp;
-//             }
-
-//             const otp = generateNumericOTP(6);
-//             console.log(otp);
-//             user.otp = otp;
-//             await user.save();
-
-//             const mailOptions = {
-//                 from: 'duashaf123@gmail.com',
-//                 to: email,
-//                 subject: 'Login OTP',
-//                 text: `Your OTP for login is: ${otp}`,
-//             };
-
-//             // Send email and wait for it to complete
-//              transporter.sendMail(mailOptions);
-
-//             console.log('Email sent');
-//         }
-
-//         res.render('verifyOtp',{email}); // Assuming you have a route to verify OTP
-//     } catch (error) {
-//         console.error(error);
-//         // Render error page or send error response
-    
-//     }
-// };
-
-
-   
-
-
 const verifyLogin = async (req, res) => {
     const { email, password } = req.body;
-        
+
     try {
         const userData = await User.findOne({ email: email });
         if (!userData) {
@@ -214,8 +129,8 @@ const verifyLogin = async (req, res) => {
         if (userData.block) {
             return res.render('login', { message: 'User is blocked' });
         }
-      
-        
+
+
         // Compare the hashed password from the database with the password entered by the user
         const isPasswordValid = await bcrypt.compare(password, userData.password);
         if (!isPasswordValid) {
@@ -231,82 +146,30 @@ const verifyLogin = async (req, res) => {
     }
 }
 
-
-        // try {
-        //     const user = await User.findOne({ email });
-        //     if (!user) {
-        //         return res.render('login', { message: 'User not found, please Signup' });
-        //     }
-        //     if (user.block) {
-        //         return res.render('login', { message: 'User is blocked' });
-        //     }
-        //     if (await bcrypt.compare(password, user.password)) {
-        //         function generateNumericOTP(length) {
-        //             const digits = '0123456789';
-        //             let otp = '';
-        //             for (let i = 0; i < length; i++) {
-        //                 const randomIndex = Math.floor(Math.random() * digits.length);
-        //                 otp += digits[randomIndex];
-        //             }
-        //             return otp;
-        //         }
-        //         const otp = generateNumericOTP(6)
-        //         user.otp = otp;
-        //         await user.save();
-        //         const mailOptions = {
-        //             from: 'duashaf123@gmail.com',
-        //             to: email,
-        //             subject: 'Login OTP',
-        //             text: `Your OTP for login is: ${otp}`
-        //         };
-        //         transporter.sendMail(mailOptions, (error, info) => {
-        //             if (error) {
-        //                 console.error(error);
-        //                 res.send('Error sending OTP');
-        //             } else {
-        //                 console.log('Email sent: ' + info.response);
-        //                 res.redirect('/verifyOTP');
-        //             }
-        //         });
-        //     } else {
-        //         res.render('login', { message: 'Invalid email or password' });
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     res.send('Error logging in');
-        // }
-    
-
-
-
-//  const verifyOTP_get = (req, res) => {
-//    res.render('verifyOTP');
-// };
-
 const verifyOTP_post = async (req, res) => {
-   const { email, otp } = req.body;
-   try {
-       const userData = await User.findOne({ email});
-       
-       if (userData) { // Check if user exists
-         
-         if (userData.otp === otp) { // Compare the OTP
-             // OTP is correct, perform further actions (e.g., log the user in)
-             req.session.user_id = userData._id;
-            //  res.render('index',{user:userData});
-            res.redirect('/')
-         } else {
-             // OTP is incorrect
-             res.render('verifyOtp',{message:'Invalid OTP'});
-         }
-     } else {
-         // User not found
-         res.render('login',{message:'user not found, please signup'});
-     }
- } catch (error) {
-     console.error(error);
-     res.status(500).send('Internal Server Error');
- }
+    const { email, otp } = req.body;
+    try {
+        const userData = await User.findOne({ email });
+
+        if (userData) { // Check if user exists
+
+            if (userData.otp === otp) { // Compare the OTP
+                // OTP is correct, perform further actions (e.g., log the user in)
+                req.session.user_id = userData._id;
+                //  res.render('index',{user:userData});
+                res.redirect('/')
+            } else {
+                // OTP is incorrect
+                res.render('verifyOtp', { message: 'Invalid OTP' });
+            }
+        } else {
+            // User not found
+            res.render('login', { message: 'user not found, please signup' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
 
@@ -363,10 +226,10 @@ const blockUser = async (req, res) => {
         const user = await User.findOneAndUpdate({ _id: userId, loggedIn: false }, { $set: { block: true } });
         const usersData = await User.find().lean();
         if (!user) {
-            return   res.render("./admin/userList", { users: usersData, layout: './admin/admin-layout', message:"User is currently logged in" });
+            return res.render("./admin/userList", { users: usersData, layout: './admin/admin-layout', message: "User is currently logged in" });
         }
 
-       
+
         const message = 'User successfully blocked';
         res.render("./admin/userList", { users: usersData, layout: './admin/admin-layout', message: message });
     } catch (error) {
@@ -378,26 +241,26 @@ const blockUser = async (req, res) => {
 };
 
 
-const unBlockUser=async(req,res)=>{
+const unBlockUser = async (req, res) => {
     try {
-      const userId=req.params.id
-      
-      const user=await User.findOneAndUpdate({_id:(userId)},{$set:{block:false}})
-      console.log(user)
-      if(!user) {
-        return res.status(404).json({message:'user not found'})
-      } 
-      await user.save();
-      const usersData = await User.find().lean();
-      console.log(usersData);
-  
-      res.render("./admin/userList", { users: usersData, layout: './admin/admin-layout' });
+        const userId = req.params.id
+
+        const user = await User.findOneAndUpdate({ _id: (userId) }, { $set: { block: false } })
+        console.log(user)
+        if (!user) {
+            return res.status(404).json({ message: 'user not found' })
+        }
+        await user.save();
+        const usersData = await User.find().lean();
+        console.log(usersData);
+
+        res.render("./admin/userList", { users: usersData, layout: './admin/admin-layout' });
     } catch (error) {
         return res.status(400).json({
-         success:false,
-         msg:error.message
+            success: false,
+            msg: error.message
         })
-        
+
     }
 }
 
@@ -405,13 +268,13 @@ const unBlockUser=async(req,res)=>{
 
 
 
-const addAddressLoad= async(req,res)=>{
-    try{
+const addAddressLoad = async (req, res) => {
+    try {
         const user_id = req.session.user_id;
         console.log()
-       res.render('addAddress.hbs',{user_id})
-    }catch(error){
-       console.log(error.message)
+        res.render('addAddress.hbs', { user_id })
+    } catch (error) {
+        console.log(error.message)
     }
 }
 
@@ -447,7 +310,7 @@ const addAddressPost = async (req, res) => {
         const userAddresses = await Address.find({ user_id: userId });
 
         // Render the same hbs file with the user's addresses
-    res.render('userDetails',{addresses:userAddresses})
+        res.render('userDetails', { addresses: userAddresses })
         // Send a success response
         // res.status(201).json({ message: 'Address added successfully', address: newAddress });
     } catch (error) {
@@ -456,29 +319,29 @@ const addAddressPost = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-const deleteAddress=async (req, res) => {
-   
-        try {
-            const addressId = req.params.addressId;
-            // Verify if the address belongs to the authenticated user (optional)
-            const address = await Address.findById(addressId);
-            if (!address) {
-                return res.status(404).send('Address not found');
-            }
-            if (address.user_id.toString() !== req.session.user_id) {
-                return res.status(403).send('Unauthorized');
-            }
-            // Delete the address
-            await Address.findByIdAndDelete(addressId);
-            const remainingAddresses = await Address.find({ user_id: req.session.user_id });
-            res.render('userDetails',{ addresses: remainingAddresses })
-        } catch (error) {
-            console.error('Error deleting address:', error);
-            res.status(500).send('Internal Server Error');
+const deleteAddress = async (req, res) => {
+
+    try {
+        const addressId = req.params.addressId;
+        // Verify if the address belongs to the authenticated user (optional)
+        const address = await Address.findById(addressId);
+        if (!address) {
+            return res.status(404).send('Address not found');
         }
+        if (address.user_id.toString() !== req.session.user_id) {
+            return res.status(403).send('Unauthorized');
+        }
+        // Delete the address
+        await Address.findByIdAndDelete(addressId);
+        const remainingAddresses = await Address.find({ user_id: req.session.user_id });
+        res.render('userDetails', { addresses: remainingAddresses })
+    } catch (error) {
+        console.error('Error deleting address:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
-const editAddress= async (req, res) => {
+const editAddress = async (req, res) => {
     try {
         const addressId = req.params.addressId;
         const address = await Address.findById(addressId);
@@ -497,7 +360,7 @@ const updateAddress = async (req, res) => {
     try {
         const addressId = req.params.addressId;
         const { name, number, address, city, pincode, state, country, type } = req.body;
-        
+
         // Update the address in the database
         await Address.findByIdAndUpdate(addressId, {
             name,
@@ -514,7 +377,7 @@ const updateAddress = async (req, res) => {
         const addresses = await Address.find({ user_id: req.session.user_id });
 
         // Render the userDetails page with all the user's addresses
-        res.render('userDetails', {  addresses });
+        res.render('userDetails', { addresses });
     } catch (error) {
         console.error('Error updating address:', error);
         res.status(500).send('Internal Server Error');
@@ -534,8 +397,10 @@ const getUserDetails = async (req, res) => {
 
         const user = await User.findById(userId);
         const userAddresses = await Address.find({ user_id: userId });
-        const orders = await Order.find({ userID: userId }).populate('items.product');
-
+        const orders = await Order.find({ userID: userId }).populate('items.product').sort({ createdAt: -1 })
+        if (user.wallet && Array.isArray(user.wallet)) {
+            user.wallet.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
         if (!user) {
             return res.status(404).send('User not found');
         }
@@ -549,82 +414,84 @@ const getUserDetails = async (req, res) => {
 
 const editUserLoad = async (req, res) => {
     try {
-      const id = req.params.id;
-      const usersData = await User.find({ _id: id }).lean();
-      console.log(usersData);
-      if (usersData) {
-        res.render("./admin/edit-user", { usersData});
-      } 
+        const id = req.params.id;
+        const usersData = await User.find({ _id: id }).lean();
+        console.log(usersData);
+        if (usersData) {
+            res.render("./admin/edit-user", { usersData });
+        }
     } catch (error) {
-      console.log(error);
+        console.log(error);
     }
-  };
+};
 
-  const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
     try {
-    const userId=req.params.id
-      // await User.find({ _id: req.params.id }).lean();
-      await User.updateOne({_id:req.params.id},{$set:{
-        name: req.body.name,
-        email: req.body.email,
-        mobile: req.body.mno,
-      }}).lean();
-  
-      const updatedUser = await User.findById(req.params.id).lean()
-      const userAddresses = await Address.find({ user_id: userId });
-      const orders = await Order.find({ userID: userId }).populate('items.product');
+        const userId = req.params.id
+        // await User.find({ _id: req.params.id }).lean();
+        await User.updateOne({ _id: req.params.id }, {
+            $set: {
+                name: req.body.name,
+                email: req.body.email,
+                mobile: req.body.mno,
+            }
+        }).lean();
 
-    
-      // req.session.admin.adminid = req.body.email
-      // let adminid = req.session.admin.adminid
-      // console.log(adminid)
-      res.render("userDetails", {user:updatedUser,addresses: userAddresses, orders });
+        const updatedUser = await User.findById(req.params.id).lean()
+        const userAddresses = await Address.find({ user_id: userId });
+        const orders = await Order.find({ userID: userId }).populate('items.product');
+
+
+        // req.session.admin.adminid = req.body.email
+        // let adminid = req.session.admin.adminid
+        // console.log(adminid)
+        res.render("userDetails", { user: updatedUser, addresses: userAddresses, orders });
     } catch (error) {
-      console.log(error.message);
+        console.log(error.message);
     }
-  };
-  const forgotPassword = async (req, res) => {
+};
+const forgotPassword = async (req, res) => {
     try {
-      const { email } = req.body;
-      const userData = await User.findOne({ email });
-      if (!userData) {
-        return res.status(400).json({
-          success: false,
-          msg: "Email doesn't exist"
+        const { email } = req.body;
+        const userData = await User.findOne({ email });
+        if (!userData) {
+            return res.status(400).json({
+                success: false,
+                msg: "Email doesn't exist"
+            });
+        }
+        const randomString = randomstring.generate();
+
+        const passwordReset = new PasswordReset({ // Use PasswordReset instead of passwordReset
+            userId: userData._id,
+            token: randomString
         });
-      }
-      const randomString = randomstring.generate();
-  
-      const passwordReset = new PasswordReset({ // Use PasswordReset instead of passwordReset
-        userId: userData._id,
-        token: randomString
-      });
-      await passwordReset.save();
-      const mailOptions = {
-        from: 'duashaf123@gmail.com',
-        to: email,
-        subject: 'Reset Password',
-        html: '<p>Hii ' + userData.name + ',please click <a href="http://127.0.0.1:5000/reset-password?token=' + randomString + '">here</a> to Reset your password</p>'
-      };
-      transporter.sendMail(mailOptions, randomString);
-      return res.render('forgotPassword',{msg:"Reset password link sent to your mail"})
+        await passwordReset.save();
+        const mailOptions = {
+            from: 'duashaf123@gmail.com',
+            to: email,
+            subject: 'Reset Password',
+            html: '<p>Hii ' + userData.name + ',please click <a href="http://127.0.0.1:5000/reset-password?token=' + randomString + '">here</a> to Reset your password</p>'
+        };
+        transporter.sendMail(mailOptions, randomString);
+        return res.render('forgotPassword', { msg: "Reset password link sent to your mail" })
     } catch (error) {
-      return res.status(400).json({
-        success: false,
-        msg: error.message
-      });
+        return res.status(400).json({
+            success: false,
+            msg: error.message
+        });
     }
-  };
-const forgotPasswordLoad = async(req,res)=>{
-    try{
-       res.render('forgotPassword')
-    }catch(error){
-       console.log(error.message)
+};
+const forgotPasswordLoad = async (req, res) => {
+    try {
+        res.render('forgotPassword')
+    } catch (error) {
+        console.log(error.message)
     }
 }
 
 // Assuming you're using Express
-const resetPasswordForm= async (req, res) => {
+const resetPasswordForm = async (req, res) => {
     try {
         const token = req.query.token;
         // Logic to verify the token and render the reset password form
@@ -641,7 +508,7 @@ const resetPasswordForm= async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-const resetPassword=async(req,res)=>{
+const resetPassword = async (req, res) => {
     try {
         const { token, password, confirmPassword } = req.body;
 
@@ -694,7 +561,7 @@ const userLogout = async (req, res) => {
     try {
         // Get the user ID from the session
         const userId = req.session.user_id;
-        
+
         // Update the loggedIn flag to false
         await User.findByIdAndUpdate(userId, { $set: { loggedIn: false } });
 
@@ -710,9 +577,9 @@ const userLogout = async (req, res) => {
 };
 
 
-  
 
 
 
 
-module.exports = {homeLoad,loginLoad,signUpLoad,signup_post,verifyLogin,verifyOTP_post,userLogout,blockUser,resetPassword,resetPasswordForm,forgotPasswordLoad,unBlockUser,resendOTP,forgotPassword,editAddress,updateAddress,deleteAddress,getUserDetails,editUserLoad,addAddressLoad,addAddressPost,updateUser}
+
+module.exports = { homeLoad, loginLoad, signUpLoad, signup_post, verifyLogin, verifyOTP_post, userLogout, blockUser, resetPassword, resetPasswordForm, forgotPasswordLoad, unBlockUser, resendOTP, forgotPassword, editAddress, updateAddress, deleteAddress, getUserDetails, editUserLoad, addAddressLoad, addAddressPost, updateUser }

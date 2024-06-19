@@ -9,12 +9,12 @@ const categorySchema = mongoose.Schema({
         type:Boolean,
         default:false
         
+    },
+    offer: {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', default: null },
+        name: String,
+        discountPercentage: Number
     }
-    // colour:{
-    //     type:String
-        
-    // }
-   
 })
 
 module.exports = mongoose.model('Category', categorySchema);

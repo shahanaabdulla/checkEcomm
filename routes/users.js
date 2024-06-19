@@ -19,7 +19,8 @@ const {
   getProductsUndermenCategory, 
   sortProducts,
   searchProduct,
-  filterProducts
+  filterProducts,
+  calcTotal
 }=require('../controllers/productController')
 
 const {
@@ -33,7 +34,8 @@ const {
   deleteAddressCheckout,
   updateCart,
   checkoutaddAddressLoad,
-  checkoutaddAddressPost
+  checkoutaddAddressPost,
+  quantityUpdate
 }=require('../controllers/cartController')
 const {
    placeOrderWithCOD ,
@@ -43,7 +45,11 @@ const {
    getCancel,
   getSuccessPage,
   returnFormGet,
-  submitReturn
+  submitReturn,
+  downloadInvoice,
+  handlePaymentFailure,
+  retryPayment,
+  paymentFailure
 } = require('../controllers/orderController');
 
 const {
@@ -107,7 +113,7 @@ router.get('/add-address',isAuth,userController.addAddressLoad)
 router.post('/add-address',userController.addAddressPost)
 router.get('/checkout/add',checkoutaddAddressLoad)
 router.post('/checkout/add',checkoutaddAddressPost)
-router.get('/cart',cartLoad)
+router.get('/cart',isAuth,cartLoad)
 router.post('/add-to-cart', addToCart)
 router.put('/cart/:productId', updateCart);
 router.get('/api/cart/count',getCartCount)
@@ -135,7 +141,7 @@ router.get('/search',searchProduct)
 
 router.post('/place-order', placeOrderWithCOD);
 router.get('/orders',isAuth,getOrders)
-router.get('/orders/:orderId/product/:productId', getOrderProductDetails);
+router.get('/orders/:orderId/product/:productId',isAuth, getOrderProductDetails);
 router.get('/product-details',getOrderProductDetails)
 router.post('/cancel-order/:orderId',orderCancel)
 router.get('/orderCancel',getCancel)
@@ -146,6 +152,13 @@ router.post('/move-to-cart/:productId', moveToCart);
 router.post('/remove-wishlist/:productId',removeWishlist)
 
 router.get('/razorpay/success',getSuccessPage)
+router.get('/razorpay/failure', paymentFailure)
+router.get('/razorpay/canceled', handlePaymentFailure);
+router.get('/retry-payment/:orderId', retryPayment)
 router.get('/return-form',returnFormGet)
 router.post('/submit-return',submitReturn)
+router.get('/invoice/:orderId',downloadInvoice);
+
+router.get('/calculateTotalPrice/:productId',calcTotal)
+router.post('/quantityUpdate',quantityUpdate)
 module.exports = router;

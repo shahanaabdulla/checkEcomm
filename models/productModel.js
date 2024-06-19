@@ -86,15 +86,29 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0
 }, 
+categoryOffer: {
+    type: Boolean,
+    default: false // Indicates whether the category offer is applied to this product
+},
+categoryOfferPrice: {
+    type: Number,
+    default: 0
+}, 
+
+ brand:{
+     type:String,
+     required:true
+ },
 isWishlisted: {
     type: Boolean,
     default: false  
 },
-
+offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer' } ,
 reviews: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Review'
 }]},
+
 {timestamps:true},
 { strict: false } ,
 );

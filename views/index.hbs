@@ -356,13 +356,31 @@
                     {{this.name}}
                 </h5>
                 <h6>
-                    {{#if this.onOffer}}
-                        <span class="text-decoration-line-through">₹{{this.price}}</span>
-                        <br>
-                        ₹{{this.offerPrice}}
-                    {{else}}
-                        ₹{{this.price}}
-                    {{/if}}
+                  {{#if this.onOffer}}
+    <span class="text-decoration-line-through">₹{{this.price}}</span><br>
+    {{#if this.offerPrice}}
+        {{#if this.categoryOfferPrice}}
+            {{#lt this.offerPrice this.categoryOfferPrice}}
+                ₹{{this.offerPrice}}
+            {{else}}
+                ₹{{this.categoryOfferPrice}}
+            {{/lt}}
+        {{else}}
+            ₹{{this.offerPrice}}
+        {{/if}}
+    {{else}}
+        {{#if this.categoryOfferPrice}}
+            ₹{{this.categoryOfferPrice}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if this.categoryOfferPrice}}
+        <span class="text-decoration-line-through">₹{{this.price}}</span><br>
+        ₹{{this.categoryOfferPrice}}
+    {{else}}
+        ₹{{this.price}}
+    {{/if}}
+{{/if}}
                 </h6>
             </div>
         </div>

@@ -1,6 +1,20 @@
+<style>
+  .table th, .table td {
+    vertical-align: middle; /* Center align vertically */
+  }
+  .offer-column {
+    width: 200px; /* Adjust the width as needed */
+  }
+   .option-column {
+    width: 300px; /* Adjust the width as needed */
+  }
+</style>
 
+
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables_themeroller.css">
 <section>
-  <div class="container ">
+  <div class="container">
     <div class="row float-end m-5">
       <a href="/admin/product" class="btn" style="background-color:deepskyblue" role="button">Add New product</a>
     </div>
@@ -8,41 +22,43 @@
     <table class="table mt-5" id="usersTable">
       <thead>
         <tr>
-        
           <th scope="col">Id</th>
           <th scope="col">Name</th>
           <th scope="col">Description</th>
-           <th scope="col">Size</th>
+          <th scope="col">Size</th>
           <th scope="col">Price</th>
-           <th scope="col">Stock</th>
-           <th scope="col">Image</th>
-            <th scope="col">Deleted</th>
-           <th scope="col">Options</th>
-         
+          <th scope="col">Stock</th>
+          <th scope="col">Image</th>
+          <th scope="col">Deleted</th>
+          <th scope="col" class="offer-column">Offer Applied</th>
+          <th scope="col" class="option-column">Options</th>
         </tr>
       </thead>
       <tbody>
-            {{#each products}}
-        <tr>
-      
-
+        {{#each products}}
+        <tr data-product-id="{{this._id}}">
           <td>{{this._id}}</td>
           <td>{{this.name}}</td>
           <td>{{this.description}}</td>
-            <td>{{this.size}}</td>
+          <td>{{this.size}}</td>
           <td>{{this.price}}</td>
-            <td>{{this.stock}}</td>
-           {{!-- <td>{{this.image}}</td> --}}
-          <td ><img src="{{this.image}}" style="width: 20px; height: 20px;"></td>
-            <td>{{this.isDeleted}}</td>
-          <td>
-            <a href="/admin/edit-product/{{this._id}}" class="btn" style="background-color:rgb(19, 239, 239)" >Edit</a>
-            <a href="/admin/delete-product/{{this._id}}" class="btn " style="background-color:rgb(161, 128, 238)"
-              onclick="return confirm('Are You sure?')">Delete</a>
+          <td>{{this.stock}}</td>
+          <td><img src="{{this.image}}" style="width: 20px; height: 20px;"></td>
+          <td>{{this.isDeleted}}</td>
+          <td class="offer-column applied-offer">
+            {{#if this.offer}}
+              {{this.offer.name}} ({{this.offer.discountPercentage}}%) <button class="btn btn-danger remove-offer-btn" data-product-id="{{this._id}}">Remove</button>
+            {{else}}
+              No offer applied
+            {{/if}}
           </td>
-       
+          <td>
+            <a href="/admin/edit-product/{{this._id}}" class="btn" style="background-color:rgb(19, 239, 239)">Edit</a>
+            <a href="/admin/delete-product/{{this._id}}" class="btn" style="background-color:rgb(161, 128, 238)" onclick="return confirm('Are You sure?')">Delete</a>
+            <button class="btn apply-offer-btn" data-product-id="{{this._id}}" style="background-color:lightgreen">Apply Offer</button>
+          </td>
         </tr>
-         {{/each}}
+        {{/each}}
       </tbody>
     </table>
     <div class="row">
@@ -50,16 +66,110 @@
   </div>
 </section>
 
-<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables.css">
-   <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/css/jquery.dataTables_themeroller.css">
-   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
-   <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
+<!-- Offer Selection Modal -->
+<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="offerModalLabel">Select Offer</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="offerSelect">Select Offer</label>
+          <select id="offerSelect" class="form-control">
+            <option value="" data-discount="">Select an offer</option>
+            {{#each offers}}
+            <option value="{{this._id}}" data-discount="{{this.discountPercentage}}">{{this.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <input type="hidden" id="discountPercentage">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="applyOfferBtn">Apply Offer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-
+<script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-
-$(document).ready(function(){
+$(document).ready(function() {
     $('#usersTable').DataTable();
-});
 
+    let selectedProductId = null;
+
+    // Delegated event handling for dynamically loaded elements
+    $(document).on('click', '.apply-offer-btn', function() {
+        selectedProductId = $(this).data('product-id');
+        $('#offerModal').modal('show');
+    });
+
+    $('#offerSelect').on('change', function() {
+        const selectedOption = $(this).find('option:selected');
+        const discountPercentage = selectedOption.data('discount');
+        $('#discountPercentage').val(discountPercentage); // Set the discount percentage in the hidden input
+    });
+
+    $('#applyOfferBtn').on('click', async function() {
+        const offerId = $('#offerSelect').val();
+        const discountPercentage = $('#discountPercentage').val(); // Get the discount percentage from the hidden input
+
+        if (!offerId) {
+            alert('Please select an offer');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/offer/apply-offer/${selectedProductId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ offerId, discountPercentage })
+            });
+            if (response.ok) {
+                alert('Offer applied successfully');
+                $('#offerModal').modal('hide');
+                // Update the UI to show the applied offer
+                const productRow = $(`tr[data-product-id="${selectedProductId}"]`);
+                productRow.find('.applied-offer').html(`${$('#offerSelect option:selected').text()} (${discountPercentage}%) <button class="btn btn-danger remove-offer-btn" data-product-id="${selectedProductId}">Remove</button>`);
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred while applying the offer');
+        }
+    });
+
+    // Delegated event handling for remove offer button
+    $(document).on('click', '.remove-offer-btn', async function() {
+        const productId = $(this).data('product-id');
+
+        try {
+            const response = await fetch(`/offer/remove-offer/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                alert('Offer removed successfully');
+                // Update the UI to reflect the removed offer
+                const productRow = $(`tr[data-product-id="${productId}"]`);
+                productRow.find('.applied-offer').text('No offer applied');
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred while removing the offer');
+        }
+    });
+});
 </script>

@@ -110,7 +110,31 @@
                                     <div class="product-details">
                                         <p><strong>Product:</strong> {{this.product.name}}</p>
                                         <p><strong>Quantity:</strong> {{this.quantity}}</p>
-                                        <p><strong>Price:</strong> {{this.product.price}}</p>
+                                        <p><strong>Price:</strong>{{#if this.product.onOffer}}
+    <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
+    {{#if this.product.offerPrice}}
+        {{#if this.product.categoryOfferPrice}}
+            {{#lt this.product.offerPrice this.product.categoryOfferPrice}}
+                ₹{{this.product.offerPrice}}
+            {{else}}
+                ₹{{this.product.categoryOfferPrice}}
+            {{/lt}}
+        {{else}}
+            ₹{{this.product.offerPrice}}
+        {{/if}}
+    {{else}}
+        {{#if this.product.product.categoryOfferPrice}}
+            ₹{{this.product.categoryOfferPrice}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if this.product.categoryOfferPrice}}
+        <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
+        ₹{{this.product.categoryOfferPrice}}
+    {{else}}
+        ₹{{this.product.price}}
+    {{/if}}
+{{/if}}</p>
                                     </div>
                                 </div>
                             </a>

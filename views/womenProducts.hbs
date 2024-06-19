@@ -1,149 +1,217 @@
- <section class="inner_page_head">
-         <div class="container_fuild">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="full">
-                     <h3>Product Grid</h3>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </section>
-      <!-- end inner page section -->
-      <!-- product section -->
-      <section class="product_section layout_padding">
-         <div class="container">
-            <div class="heading_container heading_center">
-               <h2>
-                 Women  <span>Collections</span>
-               </h2>
-            </div>
-            <div class="row">
-             
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women's Collections</title>
+    <style>
+        .btn-box {
+            text-align: center;
+            margin-top: 20px;
+        }
 
-               {{#each products}}
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="box">
-            <div class="img-box">
-                <a href="/products/{{this._id}}">
-                    <img src="{{this.image}}" alt="{{this.name}}">
-                </a>
-            </div>
-            <div class="detail-box">
-                <h5>{{this.name}}</h5>
-                <h6> ₹ {{#if this.onOffer}}
-                        <span class="text-decoration-line-through">₹{{this.price}}</span>
-                        <br>
-                        ₹{{this.offerPrice}}
-                    {{else}}
-                        ₹{{this.price}}
-                    {{/if}}</h6>
-                </div>
-                <div>
-                    {{this.description}}
-                </div>
-                <div >
-                        <div class="options">
-                          <form action="/add-to-cart" method="post">
-                
-                <input type="hidden" id="quantity" name="quantity" min="1" value="1">
-                <input type="hidden" name="productId" value="{{this._id}}">
-                <button type="submit" class="btn btn-primary">Add to Cart</button>
-            </form>
-                           <a href="" class="option2">
-                           Buy Now
-                           </a>
-                        </div>
-                     </div>
-            
-        </div>
-    </div>
-    {{/each}}
-</div>
-             
-            <div class="btn-box">
-               <a href="/products">
-               View All products
-               </a>
-            </div>
-         </div>
-      </section>
-      <!-- end product section -->
-      <!-- footer section -->
-      <footer class="footer_section">
-         <div class="container">
+        .btn-view-all {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn-view-all:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination {
+            display: inline-block;
+        }
+
+        .pagination a {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .pagination a:hover {
+            background-color: #ccc;
+        }
+
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <section class="inner_page_head">
+        <div class="container_fuild">
             <div class="row">
-               <div class="col-md-4 footer-col">
-                  <div class="footer_contact">
-                     <h4>
-                        Reach at..
-                     </h4>
-                     <div class="contact_link_box">
-                        <a href="">
-                        <i class="fa fa-map-marker" aria-hidden="true"></i>
-                        <span>
-                        Location
-                        </span>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-phone" aria-hidden="true"></i>
-                        <span>
-                        Call +01 1234567890
-                        </span>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
-                        <span>
-                        demo@gmail.com
-                        </span>
-                        </a>
-                     </div>
-                  </div>
-               </div>
-               <div class="col-md-4 footer-col">
-                  <div class="footer_detail">
-                     <a href="index.html" class="footer-logo">
-                     Famms
-                     </a>
-                     <p>
-                        Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with
-                     </p>
-                     <div class="footer_social">
-                        <a href="">
-                        <i class="fa fa-facebook" aria-hidden="true"></i>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-twitter" aria-hidden="true"></i>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-linkedin" aria-hidden="true"></i>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-instagram" aria-hidden="true"></i>
-                        </a>
-                        <a href="">
-                        <i class="fa fa-pinterest" aria-hidden="true"></i>
-                        </a>
-                     </div>
-                  </div>
-               </div>
-               <div class="col-md-4 footer-col">
-                  <div class="map_container">
-                     <div class="map">
-                        <div id="googleMap"></div>
-                     </div>
-                  </div>
-               </div>
+                <div class="col-md-12">
+                    <div class="full">
+                        <h3>Product Grid</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end inner page section -->
+    <!-- product section -->
+    <section class="product_section layout_padding">
+        <div class="container">
+            <div class="heading_container heading_center">
+                <h2>
+                    Women <span>Collections</span>
+                </h2>
+            </div>
+            <div class="row">
+                {{#each products}}
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="box">
+                        <div class="img-box">
+                            <a href="/products/{{this._id}}">
+                                <img src="{{this.image}}" alt="{{this.name}}">
+                            </a>
+                        </div>
+                        <div class="detail-box">
+                            <h5>{{this.name}}</h5>
+                            <h6> ₹ {{#if this.onOffer}}
+    <span class="text-decoration-line-through">₹{{this.price}}</span><br>
+    {{#if this.offerPrice}}
+        {{#if this.categoryOfferPrice}}
+            {{#lt this.offerPrice this.categoryOfferPrice}}
+                ₹{{this.offerPrice}}
+            {{else}}
+                ₹{{this.categoryOfferPrice}}
+            {{/lt}}
+        {{else}}
+            ₹{{this.offerPrice}}
+        {{/if}}
+    {{else}}
+        {{#if this.categoryOfferPrice}}
+            ₹{{this.categoryOfferPrice}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if this.categoryOfferPrice}}
+        <span class="text-decoration-line-through">₹{{this.price}}</span><br>
+        ₹{{this.categoryOfferPrice}}
+    {{else}}
+        ₹{{this.price}}
+    {{/if}}
+{{/if}}
+</h6>
+                        </div>
+                        <div>
+                            {{this.description}}
+                        </div>
+                        <div>
+                            <div class="options">
+                                <form action="/add-to-cart" method="post">
+                                    <input type="hidden" id="quantity" name="quantity" min="1" value="1">
+                                    <input type="hidden" name="productId" value="{{this._id}}">
+                                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                </form>
+                                <a href="" class="option2">Buy Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination">
+                    {{#each paginationButtons}}
+                    <a href="?page={{this}}" class="{{#if (eq ../currentPage this)}}active{{/if}}">{{this}}</a>
+                    {{/each}}
+                </div>
+            </div>
+
+            <div class="btn-box">
+                <a href="/products">View All products</a>
+            </div>
+        </div>
+    </section>
+    <!-- end product section -->
+    <!-- footer section -->
+    <footer class="footer_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-col">
+                    <div class="footer_contact">
+                        <h4>Reach at..</h4>
+                        <div class="contact_link_box">
+                            <a href="">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                <span>Location</span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                <span>Call +01 1234567890</span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                                <span>demo@gmail.com</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <div class="footer_detail">
+                        <a href="index.html" class="footer-logo">Famms</a>
+                        <p>Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with</p>
+                        <div class="footer_social">
+                            <a href="">
+                                <i class="fa fa-facebook" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-twitter" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-linkedin" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-instagram" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-pinterest" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <div class="map_container">
+                        <div class="map">
+                            <div id="googleMap"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="footer-info">
-               <div class="col-lg-7 mx-auto px-0">
-                  <p>
-                     &copy; <span id="displayYear"></span> All Rights Reserved By
-                     <a href="https://html.design/">Free Html Templates</a><br>
-         
-                     Distributed By <a href="https://themewagon.com/" target="_blank">ThemeWagon</a>
-                  </p>
-               </div>
+                <div class="col-lg-7 mx-auto px-0">
+                    <p>&copy; <span id="displayYear"></span> All Rights Reserved By
+                        <a href="https://html.design/">Free Html Templates</a><br>
+                        Distributed By <a href="https://themewagon.com/" target="_blank">ThemeWagon</a>
+                    </p>
+                </div>
             </div>
-         </div>
-     
+        </div>
+    </footer>
+    <!-- end footer section -->
+</body>
+</html>

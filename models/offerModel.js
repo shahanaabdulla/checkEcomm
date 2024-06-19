@@ -12,11 +12,7 @@ const offerSchema = new mongoose.Schema({
         ref: "Product", // Correct capitalization for Product model
         required: true // Ensure each product entry is required
     }],
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category", // Correct capitalization for Category model
-        required: true
-    }
+    categories: [{  type: mongoose.Schema.Types.ObjectId, ref: 'Category' }]
 });
 
 const Offer = mongoose.model('Offer', offerSchema);

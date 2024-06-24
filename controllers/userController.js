@@ -397,7 +397,20 @@ const getUserDetails = async (req, res) => {
 
         const user = await User.findById(userId);
         const userAddresses = await Address.find({ user_id: userId });
-        const orders = await Order.find({ userID: userId }).populate('items.product').sort({ createdAt: -1 })
+
+        // Get today's date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set time to the start of the day
+
+        // Filter orders to include only today's orders
+        const orders = await Order.find({ 
+            userID: userId,
+            createdAt: {
+                $gte: today,
+                $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) // Start of the next day
+            }
+        }).populate('items.product').sort({ createdAt: -1 });
+
         if (user.wallet && Array.isArray(user.wallet)) {
             user.wallet.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
@@ -411,6 +424,7 @@ const getUserDetails = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 const editUserLoad = async (req, res) => {
     try {

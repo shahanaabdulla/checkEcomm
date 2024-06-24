@@ -424,29 +424,60 @@ function generateOrderID() {
 }
 
 
-// orderController.js
+function generatePaginationButtons(currentPage, totalPages) {
+  const buttons = [];
+  for (let i = 1; i <= totalPages; i++) {
+    buttons.push(i);
+  }
+  return buttons;
+}
+
 
 
 
 // Controller function to fetch orders and render the order page
 const getOrders = async (req, res) => {
   try {
-    // Assuming user ID is available in the request session
+    // Retrieve user ID from session
     const userId = req.session.user_id;
 
-    // Fetch orders from the database for the specific user ID
+    if (!userId) {
+      return res.status(404).send('User ID not found in session');
+    }
+
+    const currentPage = parseInt(req.query.page) || 1; // Default to page 1
+    const itemsPerPage = 5; // Adjust as needed
+
+    // Calculate skip and limit values based on page number and items per page
+    const skip = (currentPage - 1) * itemsPerPage;
+    const limit = itemsPerPage;
+
+    // Get total order count for the user
+    const totalOrdersCount = await Order.countDocuments({ userID: userId });
+
+    // Find orders with pagination and populate items and coupon details
     const orders = await Order.find({ userID: userId })
       .populate('items.product')
       .populate('coupon')
-      .sort({ createdAt: -1 });
-    console.log(orders)
-    // Render the order page with the fetched orders
-    res.render('orders', { orders });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(totalOrdersCount / itemsPerPage);
+    const paginationButtons = generatePaginationButtons(currentPage, totalPages);
+
+    res.render('orders', {
+      orders,
+      currentPage,
+      totalPages,
+      paginationButtons,
+    });
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).send('Internal Server Error');
   }
 };
+
 
 const getOrderProductDetails = (req, res) => {
   // Extract query parameters from the request

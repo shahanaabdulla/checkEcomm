@@ -6,7 +6,6 @@
   <title>Admin Sales Report</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -137,6 +136,23 @@
     .download-buttons button:hover {
       background-color: #218838;
     }
+
+    /* Loading Spinner */
+    .spinner {
+      display: none;
+      margin: 0 auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #007bff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -158,6 +174,7 @@
     <div id="salesReport">
       <!-- Sales report will be inserted here -->
     </div>
+    <div class="spinner" id="loadingSpinner"></div>
   </div>
   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -181,10 +198,13 @@
     });
 
     function fetchReport(type, data = {}) {
+      const spinner = $('#loadingSpinner');
       let url = `/order/sales-report/${type}`;
       if (type === 'custom') {
         url = '/order/sales-report/custom';
       }
+
+      spinner.show();
 
       $.ajax({
         url: url,
@@ -192,70 +212,82 @@
         data: type === 'custom' ? JSON.stringify(data) : null,
         contentType: 'application/json',
         success: function(response) {
-          renderReport(response);
+          renderReport(response, type);
         },
         error: function(error) {
           console.error('Error fetching sales report:', error);
           alert('Failed to fetch sales report. Please try again.');
+        },
+        complete: function() {
+          spinner.hide();
         }
       });
     }
 
-   function renderReport(data) {
-  let html = `
-    <h2>${data.type} Sales Report</h2>
-    <p>Total Sales: ₹${data.totalSales}</p>
-    <p>Overall Order Count: ${data.orderCount}</p>
-    <p>Overall Discount: ₹${data.totalDiscount}</p>
-    <table id="ordersTable" class="display">
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Total Price</th>
-          <th>Discount</th>
-          <th>Shipping Address</th>
-          <th>Payment Method</th>
-          <th>Status</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.orders.map(order => `
-          <tr>
-            <td>${order.orderID}</td>
-            <td>₹${order.totalPrice}</td>
-            <td>₹${order.discountAmount}</td>
-            <td>${order.shippingAddress}</td>
-            <td>${order.paymentMethod}</td>
-            <td>${order.status}</td>
-            <td>${new Date(order.createdAt).toLocaleString()}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-  $('#salesReport').html(html);
-  
-  // Initialize DataTable with buttons after rendering the report
-  $('#ordersTable').DataTable({
-    dom: 'Bfrtip',
-    buttons: [
-      'copy', 
-      'csv', 
-      'excel', 
-      {
-        extend: 'pdfHtml5',
-        orientation: 'landscape',
-        pageSize: 'A4',
-        customize: function(doc) {
-          // Add right margin
-          doc.content[0].margin = [10, 10, 50, 10]; // [left, top, right, bottom]
-        }
-      },
-      'print'
-    ]
-  });
-}
+    function renderReport(data, type) {
+      const reportTitles = {
+        daily: "Daily Sales Report",
+        weekly: "Weekly Sales Report",
+        monthly: "Monthly Sales Report",
+        yearly: "Yearly Sales Report",
+        custom: "Custom Sales Report"
+      };
+
+      let html = `
+        <h2>${reportTitles[type]}</h2>
+        <p>Total Sales: ₹${data.totalSales}</p>
+        <p>Overall Order Count: ${data.orderCount}</p>
+        <p>Overall Discount: ₹${data.totalDiscount}</p>
+        <table id="ordersTable" class="display">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Total Price</th>
+              <th>Discount</th>
+              <th>Shipping Address</th>
+              <th>Payment Method</th>
+              <th>Status</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.orders.map(order => `
+              <tr>
+                <td>${order.orderID}</td>
+                <td>₹${order.totalPrice}</td>
+                <td>₹${order.discountAmount}</td>
+                <td>${order.shippingAddress}</td>
+                <td>${order.paymentMethod}</td>
+                <td>${order.status}</td>
+                <td>${new Date(order.createdAt).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      $('#salesReport').html(html);
+      
+      // Initialize DataTable with buttons after rendering the report
+      $('#ordersTable').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 
+          'csv', 
+          'excel', 
+          {
+            extend: 'pdfHtml5',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            title: reportTitles[type],
+            customize: function(doc) {
+              // Add right margin
+              doc.content[0].margin = [10, 10, 50, 10]; // [left, top, right, bottom]
+            }
+          },
+          'print'
+        ]
+      });
+    }
   </script>
 </body>
 </html>

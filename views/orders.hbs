@@ -86,55 +86,57 @@
             color: green;
             font-weight: bold;
         }
+
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center; /* Center align the pagination buttons */
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .pagination a:hover {
+            background-color: #ccc;
+        }
     </style>
 </head>
-<div class="container">
 <body class="orders-page">
+<div class="container">
     <h1>Orders</h1>
     <ul>
         {{#each orders}}
             <li class="order-item">
-                <a href="order/order-status/{{this._id}}" class="order-link"> <!-- Add link here -->
+                <a href="order/order-status/{{this._id}}" class="order-link">
                     <h3>Order #{{this.orderID}}</h3>
                 </a>
-                <p class="order-status">Status: {{this.status}}</p> <!-- Status displayed here -->
+                <p class="order-status">Status: {{this.status}}</p>
                 {{#if this.coupon}}
                     <p class="coupon-applied">Coupon Applied: {{this.coupon.code}} (Discount: {{this.discountAmount}})</p>
                 {{/if}}
                 <ul class="sublist">
                     {{#each this.items}}
                         <li class="sublist-item">
-                            <a href="/product-details?productName={{this.product.name}}&productPrice={{this.product.price}}&orderID={{../_id}}" class="order-link"> <!-- Add link here -->
+                            <a href="/product-details?productName={{this.product.name}}&productPrice={{this.product.price}}&orderID={{../_id}}" class="order-link">
                                 <div class="product-box">
                                     <img src="{{this.product.image}}" alt="{{this.product.name}}">
                                     <div class="product-details">
                                         <p><strong>Product:</strong> {{this.product.name}}</p>
                                         <p><strong>Quantity:</strong> {{this.quantity}}</p>
-                                        <p><strong>Price:</strong>{{#if this.product.onOffer}}
-    <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
-    {{#if this.product.offerPrice}}
-        {{#if this.product.categoryOfferPrice}}
-            {{#lt this.product.offerPrice this.product.categoryOfferPrice}}
-                ₹{{this.product.offerPrice}}
-            {{else}}
-                ₹{{this.product.categoryOfferPrice}}
-            {{/lt}}
-        {{else}}
-            ₹{{this.product.offerPrice}}
-        {{/if}}
-    {{else}}
-        {{#if this.product.product.categoryOfferPrice}}
-            ₹{{this.product.categoryOfferPrice}}
-        {{/if}}
-    {{/if}}
-{{else}}
-    {{#if this.product.categoryOfferPrice}}
-        <span class="text-decoration-line-through">₹{{this.product.price}}</span><br>
-        ₹{{this.product.categoryOfferPrice}}
-    {{else}}
-        ₹{{this.product.price}}
-    {{/if}}
-{{/if}}</p>
+                                        <p><strong>Price:</strong> ₹{{this.product.price}}</p>
                                     </div>
                                 </div>
                             </a>
@@ -149,31 +151,41 @@
             </li>
         {{/each}}
     </ul>
-   </div>
-    <!-- Add this script tag within the <head> or <body> of your HTML page -->
-    <script>
-        // Function to cancel an order
-        function cancelOrder(orderId) {
-            // Send a POST request to the backend endpoint to cancel the order
-            fetch(`/cancel-order/${orderId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect the user to the orderCancel page with updated status
-                    window.location.href = `/orders?status=cancelled`; // Update status here
-                } else {
-                    throw new Error('Failed to cancel order');
-                }
-            })
-            .catch(error => {
-                console.error('Error cancelling order:', error);
-                alert('Failed to cancel order. Please try again later.');
-            });
-        }
-    </script>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {{#each paginationButtons}}
+            {{#if (isCurrentPage ../currentPage this)}}
+                <a href="/orders?page={{this}}" class="active">{{this}}</a>
+            {{else}}
+                <a href="/orders?page={{this}}">{{this}}</a>
+            {{/if}}
+        {{/each}}
+    </div>
+</div>
+
+<!-- Script for canceling orders -->
+<script>
+    function cancelOrder(orderId) {
+        fetch(`/cancel-order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirect the user to the orderCancel page with updated status
+                window.location.href = `/orders?status=cancelled`; // Update status here
+            } else {
+                throw new Error('Failed to cancel order');
+            }
+        })
+        .catch(error => {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. Please try again later.');
+        });
+    }
+</script>
 </body>
 </html>

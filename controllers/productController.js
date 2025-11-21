@@ -28,7 +28,7 @@ const getProducts = async (req, res) => {
 
     // Fetch all offers
     const offers = await Offer.find().lean();
-
+    
     // Render the product list with offers
     res.render('./admin/productList', { offers, products: productData, layout: './admin/admin-layout' });
   } catch (error) {
@@ -389,7 +389,7 @@ const sortProducts = async (req, res) => {
         // Default sorting
         break;
     }
-
+    
     products = products.slice(skip, skip + limit);
 
     const totalPages = Math.ceil(totalProductsCount / itemsPerPage);

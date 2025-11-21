@@ -78,6 +78,7 @@ const signup_post = async (req, res) => {
             email: req.body.email,
             mobile: req.body.mno,
             password: spassword,
+            walletBalance: 0 // Setting a default value for walletBalance
         });
 
         function generateNumericOTP(length) {
@@ -89,6 +90,7 @@ const signup_post = async (req, res) => {
             }
             return otp;
         }
+
         // Generate OTP for the user
         const otp = generateNumericOTP(6);
         console.log(otp);
@@ -116,7 +118,6 @@ const signup_post = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-
 
 const verifyLogin = async (req, res) => {
     const { email, password } = req.body;

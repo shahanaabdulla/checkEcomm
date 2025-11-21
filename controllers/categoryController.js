@@ -154,6 +154,7 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
   try {
     const catId = req.params.id
+   
     const category = await Category.findOneAndUpdate({ _id: (catId) }, { $set: { isDeletd: true } })
     console.log(category)
 

@@ -24,11 +24,6 @@ const app = express();
 const sessionSecret = process.env.SESSION_SECRET;
 const database = process.env.DB_URL;
 
-// Database Connection
-mongoose.connect(database)
-.then(() => console.log('database connected'))
-.catch(err => console.log(err));
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -40,10 +35,11 @@ app.use(session({
   saveUninitialized: true
 }));
 
+// Disable caching
 app.use((req, res, next) => {
   res.setHeader(
     "Cache-Control",
-    "no-cache, no-store,max-age=0, must-revalidate"
+    "no-cache, no-store, max-age=0, must-revalidate"
   );
   next();
 });
@@ -56,6 +52,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Routes
 app.use('/admin', indexRouter);
 app.use('/', usersRouter);
 app.use('/order', orderRouter);
@@ -77,7 +74,19 @@ app.use(function(err, req, res, next) {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Database Connection & Server Start
+mongoose.connect(database, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('Database connected');
 
+  // Start server **only after DB is connected**
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})
+.catch(err => {
+  console.error('Database connection error:', err);
+});
